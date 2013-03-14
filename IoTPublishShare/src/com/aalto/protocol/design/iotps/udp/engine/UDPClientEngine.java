@@ -4,6 +4,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
+import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
+import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
+import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
+
 public class UDPClientEngine {
 
 	private static final int CLIENT_INTERFACE_PORT = 5060;
@@ -26,7 +31,21 @@ public class UDPClientEngine {
 	        System.out.println(udpPacket.getAddress().getHostName() + ": "
 	            + receivedMsg);
 	        udpPacket.setLength(buffer.length);
-			
+	        
+	        if(receivedMsg.contains("\"acknowledgement\"")){ // ACK message received from the client
+	        	System.out.println("Ack message received");
+	        	IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
+	        	AckEngine.removeFromPendingAcks(ackObj);
+	        	
+	        } else if(receivedMsg.contains("\"subscribe\"")){ // Subscribe/Un-subscribe message received from the client
+	        	System.out.println("Subscribe message received");
+	        	IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
+	        	if(receivedMsg.contains("unsubscribe")){  
+	        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
+	        	} else {
+	        		SubscribeEngine.addSubscription(subObj);	// Subscribe
+	        	}
+	        }
 		}
 	}
 	
