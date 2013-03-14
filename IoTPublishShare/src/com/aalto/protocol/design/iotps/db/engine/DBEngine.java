@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
+import com.aalto.protocol.design.iotps.objects.IoTPSPendingAcksObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 
 
@@ -23,31 +25,45 @@ public class DBEngine {
 	private static final String PENDING_ACK_OBJECT = "pending_acks";
 	
 	static {
-		
 		try {
-			
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Loaded MySQL JDBC Driver");
-			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	
-	
-	
 	public static void main(String[] args) {
 	
-		String updateQuery = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap', 1); ";
-		String selectQuery = "select * from sensor_table; ";
-		executeUpdate(updateQuery);
-		List <IoTPSObject> sensorObjList = executeQuery(selectQuery, SENSOR_OBJECT);
+		String updateQuerySensor = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap', 1); ";
+		executeUpdate(updateQuerySensor);
+		String updateQueryClient = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('127.0.0.1', 5060, 1, 1, 'my_test_device', 0, 1); ";
+		executeUpdate(updateQueryClient);
+		String updateQueryPendingAck = "insert into pending_acks_table (sub_seq_no, seq_no) values (1, 1); ";
+		executeUpdate(updateQueryPendingAck);
+		
+		String selectSensorQuery = "select * from sensor_table; ";
+		List <IoTPSObject> sensorObjList = executeQuery(selectSensorQuery, SENSOR_OBJECT);
 		for (Iterator iterator = sensorObjList.iterator(); iterator.hasNext();) {
 			IoTPSSensorObject ioTPSObject = (IoTPSSensorObject) iterator.next();
 			System.out.println("--"+ioTPSObject.getDeviceId());
 		}
+		
+		String selectClientQuery = "select * from client_table; ";
+		List <IoTPSObject> clientObjList = executeQuery(selectClientQuery, CLIENT_OBJECT);
+		for (Iterator iterator = clientObjList.iterator(); iterator.hasNext();) {
+			IoTPSClientObject ioTPSObject = (IoTPSClientObject) iterator.next();
+			System.out.println("--"+ioTPSObject.getIp());
+		}
+		
+		String selectPendingAcksQuery = "select * from pending_acks_table; ";
+		List <IoTPSObject> pendingAcksObjList = executeQuery(selectPendingAcksQuery, PENDING_ACK_OBJECT);
+		for (Iterator iterator = pendingAcksObjList.iterator(); iterator.hasNext();) {
+			IoTPSPendingAcksObject ioTPSObject = (IoTPSPendingAcksObject) iterator.next();
+			System.out.println("--"+ioTPSObject.getSubSeqNo());
+		}
+		
 		System.out.println("Query executed");
 	}
 
@@ -67,25 +83,27 @@ public class DBEngine {
 				ResultSet resultSet = ps.executeQuery();
 				
 				while(resultSet.next()){
-					
 					if(SENSOR_OBJECT.equals(objectType)){
 						IoTPSSensorObject sensorObj = new IoTPSSensorObject();
 						sensorObj.setDeviceId(resultSet.getString("device_id"));
 						sensorObj.setLatestSeqNum(resultSet.getInt("latest_seq_num"));
 						returnObjectList.add(sensorObj);
 					} else if (CLIENT_OBJECT.equals(objectType)){
-						/*
-						 * Do something else
-						 */
-						
-						
+						IoTPSClientObject clientObj = new IoTPSClientObject();
+						clientObj.setDeviceId(resultSet.getString("device_id"));
+						clientObj.setSeqNo(resultSet.getInt("seq_no"));
+						clientObj.setIp(resultSet.getString("ip"));
+						clientObj.setAckSupport(resultSet.getInt("ack_support"));
+						clientObj.setPort(resultSet.getInt("port"));
+						clientObj.setVersion(resultSet.getInt("version"));
+						clientObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
+						returnObjectList.add(clientObj);
 					} else if (PENDING_ACK_OBJECT.equals(objectType)){
-						/*
-						 * Do something else
-						 */
-						
+						IoTPSPendingAcksObject pendingAcksObj = new IoTPSPendingAcksObject();
+						pendingAcksObj.setSeqNo(resultSet.getInt("seq_no"));
+						pendingAcksObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
+						returnObjectList.add(pendingAcksObj);
 					}
-					
 					
 				}
 			}
