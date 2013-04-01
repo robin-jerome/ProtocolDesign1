@@ -4,21 +4,21 @@ import java.util.LinkedList;
 
 public class MyQueue {
 
-	private LinkedList<String> myLinkedList= new LinkedList<String>();
+	private LinkedList<Packet> myLinkedList= new LinkedList<Packet>();
 	
-	private LinkedList<String> windowList= new LinkedList<String>();
+	private LinkedList<Packet> windowList= new LinkedList<Packet>();
 	
 	private int windowStart = 0; // Always zero ???
 	
 	private int windowEnd = 1; // Starting with 1 -> incremented
 	
-	public LinkedList<String> getSendingWindow() {
+	public LinkedList<Packet> getSendingWindow() {
 		
 		if(windowList.size() == (windowEnd-windowStart)){             // the window is full
 			return windowList;
 		} else if (windowList.size() < (windowEnd-windowStart)){      // window is not full -- need to fetch entries from bigger Linked List
 			int count = (windowEnd-windowStart)-windowList.size();
-			for (String element : myLinkedList){
+			for (Packet element : myLinkedList){
 				if(count > 0){
 					windowList.add(element);
 					count--;
@@ -29,9 +29,9 @@ public class MyQueue {
 			}
 			return windowList;
 		} else {                                                      // window is bigger than expected -- shrink window and send the stuff ( packets might be lost)          
-			LinkedList<String> shrinkedList= new LinkedList<String>();
+			LinkedList<Packet> shrinkedList= new LinkedList<Packet>();
 			int count = 0;
-			for (String element : myLinkedList){
+			for (Packet element : myLinkedList){
 				if(count<(windowEnd-windowStart)){
 					shrinkedList.add(element);
 				} else {
@@ -44,11 +44,11 @@ public class MyQueue {
 		
 	}
 
-	public void pushToQueue(String element){
+	public void pushToQueue(Packet element){
 		myLinkedList.add(element);
 	}
 	
-	public void removeFromQueue(String element){
+	public void removeFromQueue(Packet element){
 		if(windowList.contains(element)){
 			windowList.remove(windowList.indexOf(element));
 		} else {
