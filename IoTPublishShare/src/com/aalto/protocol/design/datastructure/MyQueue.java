@@ -48,21 +48,32 @@ public class MyQueue {
 		myLinkedList.add(element);
 	}
 	
-	public void removeFromQueue(Packet element){
-		if(windowList.contains(element)){
-			windowList.remove(windowList.indexOf(element));
+	private boolean removeFromQueue(Packet packet){
+		if(windowList.contains(packet)){
+			windowList.remove(windowList.indexOf(packet));
+			return true;
 		} else {
 			// duplicate acknowledgement
-			halveCwnd();
+			return false;
 		}
-		
 	}
 	
-	public void LinearIncementCwnd(){
+	public boolean removePacketWithSeqNumFromQueue(int seqNum){
+		boolean removed = false;
+		for (Packet packet : windowList){
+			if(packet.isSent() && packet.getSeqNum()==seqNum){
+				removed = removeFromQueue(packet);
+				break;
+			}
+		}
+		return removed;
+	}
+	
+	public void linearIncementCwnd(){
 		windowEnd++;
 	}
 	
-	public void ExponentialIncementCwnd(){
+	public void exponentialIncementCwnd(){
 		int currWindowSize = windowList.size();
 		double power = Math.log(currWindowSize);
 		power++;

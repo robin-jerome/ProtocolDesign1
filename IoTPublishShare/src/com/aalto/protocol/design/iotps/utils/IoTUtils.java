@@ -5,4 +5,16 @@ public class IoTUtils {
 		System.out.println("Test commit to see if the code works -- Checking Auto Commit");
 	}
 
+	
+
+	public static String getMyClientFacingIp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static int getMyClientFacingPort() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

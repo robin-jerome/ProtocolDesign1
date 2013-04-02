@@ -17,7 +17,7 @@ public class UDPClientEngine {
 	
 	private static final int BUFFER_LENGTH = 2048;
 	
-	private static void listenForClientMessages() throws Exception {
+	public static void listenForClientMessages() throws Exception {
 		
 		byte[] buffer = new byte[BUFFER_LENGTH];
 		DatagramPacket udpPacket = new DatagramPacket(buffer, buffer.length);
@@ -49,7 +49,7 @@ public class UDPClientEngine {
 		}
 	}
 	
-	private static void sendToClient(String ip, int port, String message) throws Exception {
+	public static void sendToClient(String ip, int port, String message) throws Exception {
 		
 		  byte[] messageInBytes = message.getBytes();
 	      InetAddress address = InetAddress.getByName(ip);

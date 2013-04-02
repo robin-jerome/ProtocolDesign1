@@ -6,6 +6,8 @@ public class Packet {
 
 	private int seqNum = 0;
 	
+	private boolean sent = false;
+	
 	private JSONObject jsonObject = new JSONObject();
 
 	public int getSeqNum() {
@@ -28,5 +30,13 @@ public class Packet {
     public boolean equals(Object obj) {
 		Packet packet = (Packet) obj;
 		return this.seqNum == packet.seqNum ;
+	}
+
+	public boolean isSent() {
+		return sent;
+	}
+
+	public void setSent(boolean sent) {
+		this.sent = sent;
 	}
 }
