@@ -17,12 +17,12 @@ import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 
 public class DBEngine {
 	
-	private static final String DB_USER_NAME = "root";
-	private static final String DB_PASSWORD = "root";
-	private static final String DB_URL = "jdbc:mysql://localhost:3306/iotps";
-	private static final String SENSOR_OBJECT = "sensor";
-	private static final String CLIENT_OBJECT = "client";
-	private static final String PENDING_ACK_OBJECT = "pending_acks";
+	public static final String DB_USER_NAME = "root";
+	public static final String DB_PASSWORD = "root";
+	public static final String DB_URL = "jdbc:mysql://localhost:3306/iotps";
+	public static final String SENSOR_OBJECT = "sensor";
+	public static final String CLIENT_OBJECT = "client";
+	public static final String PENDING_ACK_OBJECT = "pending_acks";
 	
 	static {
 		try {
@@ -70,7 +70,7 @@ public class DBEngine {
 
 
 
-	private static List<IoTPSObject> executeQuery(String selectQuery, String objectType) {
+	public static List<IoTPSObject> executeQuery(String selectQuery, String objectType) {
 
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -136,7 +136,7 @@ public class DBEngine {
 
 
 
-	private static void executeUpdate(String updateQuery) {
+	public static void executeUpdate(String updateQuery) {
 		
 		Connection connection = null;
 		PreparedStatement ps = null;

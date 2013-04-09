@@ -20,6 +20,10 @@ public class PacketSender {
 	
 	private String name;
 	
+	private Thread packetSenderThread = null; 
+	
+	private boolean threadStopped = false;
+	
 	public String getServerIp() {
 		return serverIp;
 	}
@@ -59,24 +63,45 @@ public class PacketSender {
 			System.out.println("Packet Sender not initialized yet.");
 		} else {
 			System.out.println("Packet Sender initialized.");
-			new Thread(new Runnable() {
+			packetSenderThread = new Thread(new Runnable() {
 			    public void run() {
-			        while(true){
-			        	LinkedList<Packet> packetList = myQueue.getSendingWindow();
-			        	for( Packet packet: packetList ) {
-			        		if(!packet.isSent()){
-			        			try {
-									UDPClientEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject().toJSONString());
-									packet.setSent(true); // setting that the packet has been sent
-								} catch (Exception e) {
-									System.err.println("Packet Sending Failed:"+e.getMessage());
-									e.printStackTrace();
-								}
-			        		}
+			    	
+			        while(!threadStopped){
+			        	
+			        	if(null != myQueue){ // Only non-null Queue is processed
+			        		
+			        		LinkedList<Packet> packetList = myQueue.getSendingWindow();
+				        	for( Packet packet: packetList ) {
+				        		if(!packet.isSent()){
+				        			try {
+										UDPClientEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject().toJSONString());
+										packet.setSent(true); // setting that the packet has been sent
+									} catch (Exception e) {
+										System.err.println("Packet Sending Failed:"+e.getMessage());
+										e.printStackTrace();
+									}
+				        		}
+				        	}	
+				        	
+			        	}  else { // Stop Processing method called
+			        		// Kill the thread if it is interrupted
+			        		if (packetSenderThread.isInterrupted()) {
+								packetSenderThread.stop();
+							}
 			        	}
+			        	
 			        }
+			        
 			    }
-			}).start();
+			});
+			packetSenderThread.start();
 		}
+	}
+	
+	public void stopProcess(){
+		// Setting the queue to null would stop processing
+		threadStopped = true;
+		packetSenderThread.interrupt();
+		myQueue = null;
 	}
 }
