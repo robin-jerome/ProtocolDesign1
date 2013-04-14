@@ -57,7 +57,7 @@ public class IoTPSSensorUpdateObject {
 		this.dataSize = dataSize;
 	}
 	
-	void print(){
+	public void print(){
 		System.out.printf("devId : %s \n",this.devId );
 		System.out.printf("devNumber : %d \n",this.devNumber );
 		System.out.printf("data : %s \n",this.data );

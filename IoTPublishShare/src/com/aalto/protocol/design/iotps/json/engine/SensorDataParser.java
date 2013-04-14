@@ -4,7 +4,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;
 
 public class SensorDataParser {
 
-	private String extractFieldWithName(String fieldName, String revdMsg){//extract data field of every strF 
+	private static  String extractFieldWithName(String fieldName, String revdMsg){//extract data field of every strF 
 		fieldName="'"+fieldName+"': '";
 		
 		int id_index0 = revdMsg.indexOf(fieldName);
@@ -19,18 +19,18 @@ public class SensorDataParser {
 	}
 
 
-	private String extractDeviceId(String revdMsg){//returns dev_id field
+	private static String extractDeviceId(String revdMsg){//returns dev_id field
 		return extractFieldWithName("dev_id", revdMsg);
 	}
 
 
-	private String extractSensorData(String revdMsg){//returns sensor_data field or "parsingError"
+	private static  String extractSensorData(String revdMsg){//returns sensor_data field or "parsingError"
 		return extractFieldWithName("sensor_data", revdMsg);
 		
 	}
 
 
-	private Integer extractSequenceNumber(String revdMsg){//returns seq_no field or -1 for errors
+	private static  Integer extractSequenceNumber(String revdMsg){//returns seq_no field or -1 for errors
 		String seqNumString = extractFieldWithName("seq_no", revdMsg);
 		if( seqNumString == null) {
 			return null;
@@ -45,7 +45,7 @@ public class SensorDataParser {
 	}
 		
 
-	private Double extractTimeStamp(String revdMsg) {//returns ts field or -1 for errors
+	private static  Double extractTimeStamp(String revdMsg) {//returns ts field or -1 for errors
 		String timeStampString = (extractFieldWithName("ts",revdMsg));
 		if(timeStampString == null){
 			return null;
@@ -58,7 +58,7 @@ public class SensorDataParser {
 		}
 	}
 
-	private Integer extractDataSize(String revdMsg) {//returns data_size field or -1 for errors
+	private static  Integer extractDataSize(String revdMsg) {//returns data_size field or -1 for errors
 		String dataSizeString = extractFieldWithName("data_size",revdMsg);
 		if(dataSizeString == null) {
 			return null;
@@ -72,7 +72,7 @@ public class SensorDataParser {
 		}
 	}
 
-	public IoTPSSensorUpdateObject generateSensorObject(String rcvMsg){
+	public static IoTPSSensorUpdateObject generateSensorObject(String rcvMsg){
 
 		IoTPSSensorUpdateObject tempObject = new IoTPSSensorUpdateObject();
 
@@ -80,23 +80,23 @@ public class SensorDataParser {
 			return null;
 		else tempObject.setDevId(extractDeviceId(rcvMsg));
 
-		if (this.extractSensorData(rcvMsg)==null)
+		if (extractSensorData(rcvMsg)==null)
 			return null;
 		else tempObject.setData(extractSensorData(rcvMsg));
 
-		if (this.extractDataSize(rcvMsg)==-1)
+		if (extractDataSize(rcvMsg)==-1)
 			return null;
 		else tempObject.setDataSize(extractDataSize(rcvMsg));
 
-		if (this.extractSequenceNumber(rcvMsg)==-1)
+		if (extractSequenceNumber(rcvMsg)==-1)
 			return null;
 		else tempObject.setSeqNo(extractSequenceNumber(rcvMsg));
 
-		if (this.extractTimeStamp(rcvMsg)==-1)
+		if (extractTimeStamp(rcvMsg)==-1)
 			return null;
 		else tempObject.setTimeStamp(extractTimeStamp(rcvMsg));
 
-		String deviceNameString=this.extractDeviceId(rcvMsg);//set devNo in tempObject
+		String deviceNameString=extractDeviceId(rcvMsg);//set devNo in tempObject
 		int id_index0 = deviceNameString.indexOf("_");
 		if (id_index0!=-1){
 			try{
@@ -108,6 +108,18 @@ public class SensorDataParser {
 		}
 
 		return tempObject;
+	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String sampleUpdate= "'dev_id': 'camera_1', 'sensor_data': 'NO_MOTION', 'seq_no': '1', 'ts': '1361706055.55', 'data_size': '9'";
+		IoTPSSensorUpdateObject tempMyObject = SensorDataParser.generateSensorObject(sampleUpdate);
+		if(tempMyObject != null){
+			tempMyObject.print();
+		}
+		else 
+			System.out.println("error in string");
+
 	}
 
 }
