@@ -1,6 +1,6 @@
 package com.aalto.protocol.design.datastructure;
 
-import org.json.simple.JSONObject;
+import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 
 public class Packet {
 
@@ -8,7 +8,7 @@ public class Packet {
 	
 	private boolean sent = false;
 	
-	private JSONObject jsonObject = new JSONObject();
+	private JSON_Object jsonObject = new JSON_Object();
 
 	public int getSeqNum() {
 		return seqNum;
@@ -18,11 +18,11 @@ public class Packet {
 		this.seqNum = seqNum;
 	}
 
-	public JSONObject getJsonObject() {
+	public JSON_Object getJsonObject() {
 		return jsonObject;
 	}
 
-	public void setJsonObject(JSONObject jsonObject) {
+	public void setJsonObject(JSON_Object jsonObject) {
 		this.jsonObject = jsonObject;
 	}
 	

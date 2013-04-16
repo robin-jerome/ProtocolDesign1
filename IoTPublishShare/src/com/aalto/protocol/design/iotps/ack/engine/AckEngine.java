@@ -1,14 +1,26 @@
 package com.aalto.protocol.design.iotps.ack.engine;
 
+import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
 import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class AckEngine {
 
-	public static IoTPSAckObject getAckObjectFromUDPMessage(String receivedMsg) {
+	public static IoTPSAckObject getAckObjectFromUDPMessage(String receivedMsg) throws Exception {
 		
-		return null;
+		JSON_Object o = new JSON_Object(receivedMsg);
+		IoTPSAckObject ack = new IoTPSAckObject();
+		
+		// TODO Schema or datagram??
+		ack.setFromIp(o.GetValue("from_ip"));
+		ack.setFromPort((int)o.GetNumberValue("from_port"));
+		//
+		
+		ack.setSeqNo((int)o.GetNumberValue("seq_no"));
+		ack.setSubSeqNo((int)o.GetNumberValue("sub_seq_no"));
+		
+		return ack;
 	}
 
 	public static void removeFromPendingAcks(IoTPSAckObject ackObj) {

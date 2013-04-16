@@ -3,6 +3,7 @@ package com.aalto.protocol.design.iotps.subscribe.engine;
 import java.util.List;
 
 import com.aalto.protocol.design.iotps.db.engine.DBEngine;
+import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSender;
@@ -11,10 +12,23 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class SubscribeEngine {
 
-	public static IoTPSSubscribeObject getSubscribeObjectFromUDPMessage(
-			String receivedMsg) {
+	public static IoTPSSubscribeObject getSubscribeObjectFromUDPMessage(String receivedMsg) throws Exception {
+		JSON_Object o = new JSON_Object(receivedMsg);
+		IoTPSSubscribeObject subs = new IoTPSSubscribeObject();
+		subs.setDeviceId(o.GetValue("device_id"));
+		subs.setIp(o.GetValue("client_ip"));
+		subs.setPort((int)o.GetNumberValue("client_port"));
+		subs.setSeqNo((int)o.GetNumberValue("seq_no"));
+		subs.setSubSeqNo((int)o.GetNumberValue("sub_seq_no"));
+		subs.setVersion(1); //TODO
 		
-		return null;
+		try {
+			subs.setAckSupport((int)o.GetNumberValue("ack_support"));
+		} catch (Exception e) {
+			subs.setAckSupport(0);
+		}
+		
+		return subs;
 	}
 
 	public static void addSubscription(IoTPSSubscribeObject subObj) {

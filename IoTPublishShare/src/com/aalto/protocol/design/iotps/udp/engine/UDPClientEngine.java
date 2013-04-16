@@ -34,16 +34,24 @@ public class UDPClientEngine {
 	        
 	        if(receivedMsg.contains("\"acknowledgement\"")){ // ACK message received from the client
 	        	System.out.println("Ack message received");
-	        	IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
-	        	AckEngine.removeFromPendingAcks(ackObj);
+	        	try {
+	        		IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
+	        		AckEngine.removeFromPendingAcks(ackObj);
+	        	} catch (Exception e) {
+	        		continue;
+	        	}
 	        	
 	        } else if(receivedMsg.contains("\"subscribe\"")){ // Subscribe/Un-subscribe message received from the client
 	        	System.out.println("Subscribe message received");
-	        	IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
-	        	if(receivedMsg.contains("unsubscribe")){  
-	        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
-	        	} else {
-	        		SubscribeEngine.addSubscription(subObj);	// Subscribe
+	        	try {
+	        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
+		        	if(receivedMsg.contains("unsubscribe")){  
+		        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
+		        	} else {
+		        		SubscribeEngine.addSubscription(subObj);	// Subscribe
+		        	}
+	        	} catch (Exception e) {
+	        		continue;
 	        	}
 	        }
 		}
