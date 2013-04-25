@@ -8,18 +8,15 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 public class AckEngine {
 
 	public static IoTPSAckObject getAckObjectFromUDPMessage(String receivedMsg) throws Exception {
-		
 		JSON_Object o = new JSON_Object(receivedMsg);
 		IoTPSAckObject ack = new IoTPSAckObject();
-		
-		// TODO Schema or datagram??
-		ack.setFromIp(o.GetValue("from_ip"));
-		ack.setFromPort((int)o.GetNumberValue("from_port"));
-		//
-		
 		ack.setSeqNo((int)o.GetNumberValue("seq_no"));
 		ack.setSubSeqNo((int)o.GetNumberValue("sub_seq_no"));
 		
+		// TODO Schema or datagram??
+		ack.setFromIp(o.GetValue("client_ip"));
+		ack.setFromPort((int)o.GetNumberValue("client_port"));
+		//
 		return ack;
 	}
 
