@@ -3,14 +3,24 @@ package com.aalto.protocol.design.iotps.update.engine;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aalto.protocol.design.datastructure.Packet;
 import com.aalto.protocol.design.iotps.db.engine.DBEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSUpdateObject;
+import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
+import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class UpdateEngine {
+	
+	public static void update(IoTPSSensorUpdateObject sensorUpdate) {
+		List<IoTPSUpdateObject> updates = getUpdateObjects(sensorUpdate);
+		for (IoTPSUpdateObject o : updates) {
+			sendUpdate(o);
+		}
+	}
 	
 	public static List<IoTPSUpdateObject> getUpdateObjects(IoTPSSensorUpdateObject sensorUpdate) {
 		String selectClientQuery = "select * from client_table where device_id = '" + sensorUpdate.getDevId() + "'";
@@ -30,9 +40,16 @@ public class UpdateEngine {
 			u.setAckSupport(c.getAckSupport());
 			
 			u.setTimestamp(sensorUpdate.getTimeStamp());
-			u.setData(sensorUpdate.getData());
+			u.setSensorData(sensorUpdate.getData());
 			updates.add(u);
 		}
 		return updates;
+	}
+	
+	public static void sendUpdate(IoTPSUpdateObject update){
+		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+update.getClientIp()+":"+update.getClientPort();
+		Packet packet = new Packet();
+		packet.setSeqNum(update.getSeqNo());
+		PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().pushToQueue(packet);
 	}
 }

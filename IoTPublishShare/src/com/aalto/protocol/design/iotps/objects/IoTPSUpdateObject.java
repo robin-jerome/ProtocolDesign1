@@ -1,5 +1,7 @@
 package com.aalto.protocol.design.iotps.objects;
 
+import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
+
 public class IoTPSUpdateObject extends IoTPSObject{
 	private String client_ip;
 	private int client_port;
@@ -10,7 +12,6 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	private String sensor_data;
 	private int version;
 	private int ack_support;
-	private String data;
 	
 	public String getClientIp() {return client_ip;}
 	public void setClientIp(String ip) {this.client_ip = ip;}
@@ -39,6 +40,17 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	public int getAckSupport() {return ack_support;}
 	public void setAckSupport(int a) {this.ack_support = a;}
 	
-	public String getData() {return data;}
-	public void setData(String data) {this.data = data;}
+	
+	public String getJSONString() {
+		JSON_Object o = new JSON_Object();
+		o.AddItem("client_ip", this.client_ip);
+		o.AddItem("client_port", this.client_port + "");
+		o.AddItem("device_id", this.device_id);
+		o.AddItem("seq_no", this.getSeqNo() + "");
+		o.AddItem("sub_seq_no", this.getSubSeqNo() + "");
+		o.AddItem("timestamp", this.getTimestamp() + "");
+		o.AddItem("sensor_data", this.getSensorData());
+		o.AddItem("version", this.getVersion() + "");
+		return o.toJSONString();
+	}
 }
