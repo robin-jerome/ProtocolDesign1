@@ -16,6 +16,9 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 public class UpdateEngine {
 	
 	public static void update(IoTPSSensorUpdateObject sensorUpdate) {
+		// Add logging for sensor data
+		// Open a file with name, write and close
+		
 		List<IoTPSUpdateObject> updates = getUpdateObjects(sensorUpdate);
 		for (IoTPSUpdateObject o : updates) {
 			sendUpdate(o);
@@ -50,6 +53,7 @@ public class UpdateEngine {
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+update.getClientIp()+":"+update.getClientPort();
 		Packet packet = new Packet();
 		packet.setSeqNum(update.getSeqNo());
+		// Petteri's code
 		PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().pushToQueue(packet);
 	}
 }

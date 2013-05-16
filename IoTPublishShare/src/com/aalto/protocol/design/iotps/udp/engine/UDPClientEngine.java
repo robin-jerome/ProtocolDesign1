@@ -58,7 +58,9 @@ public class UDPClientEngine {
 	}
 	
 	public static void sendToClient(String ip, int port, String message) throws Exception {
+			
 		
+		  // Log outgoing data to file
 		  byte[] messageInBytes = message.getBytes();
 	      InetAddress address = InetAddress.getByName(ip);
 	      DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
