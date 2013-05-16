@@ -3,6 +3,7 @@ package com.aalto.protocol.design.iotps.ack.engine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
+import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
 import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class AckEngine {
@@ -12,7 +13,7 @@ public class AckEngine {
 		IoTPSAckObject ack = new IoTPSAckObject();
 		ack.setSeqNo((int)o.GetNumberValue("seq_no"));
 		ack.setSubSeqNo((int)o.GetNumberValue("sub_seq_no"));
-		
+
 		// TODO Schema or datagram??
 		ack.setFromIp(o.GetValue("client_ip"));
 		ack.setFromPort((int)o.GetNumberValue("client_port"));
@@ -28,35 +29,37 @@ public class AckEngine {
 		String queueName = serverIp+":"+serverPort+"-"+remoteIp+":"+remotePort;
 		if(PacketSenderRepo.packetSenderMap.containsKey(queueName)){
 			boolean removed = PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().removePacketWithSeqNumFromQueue(ackObj.getSeqNo());
-			if(removed){
-				// either increment linearly or exponentially -- To be done
-				boolean isLinear = false;
-				if(isLinear){
-					PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().linearIncementCwnd();
-				} else {
-					PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().exponentialIncementCwnd();
-				}
 
+			if(IoTPSServerStarter.isCongestionControlSupported){
+				if(removed){
+					// either increment linearly or exponentially -- To be done
+					boolean isLinear = false;
+					if(isLinear){
+						PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().linearIncementCwnd();
+					} else {
+						PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().exponentialIncementCwnd();
+					}
+
+				} else {
+					PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().halveCwnd();
+				}
 			} else {
-				PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().halveCwnd();
+				// Do nothing as congestion control is not supported
 			}
-		}
-		
-		
+
+		}		
 	}
 
 	public static void main(String[] args) {
-		
-		int seq_no = 1;
-		int sub_seq_no = 1;
-		String ackMessage =  getAckMessage(sub_seq_no,seq_no);
-		System.out.println(ackMessage);
+		IoTPSAckObject ackMessage = null;
+		try {
+			ackMessage = getAckObjectFromUDPMessage("");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(ackMessage.getFromIp());
 	}
 
-	private static String getAckMessage(int sub_seq_no, int seq_no) {
-		
-		String ack = "";
-			
-		return ack;
-	}
+
 }
