@@ -45,6 +45,5 @@ public class IoTPSServerStarter {
 			e.printStackTrace();
 		}} });
 		sensorListenThread.start();
-
 	}
 }

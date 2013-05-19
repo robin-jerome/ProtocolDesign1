@@ -58,19 +58,22 @@ public class UDPClientEngine {
 		}
 	}
 	
+	
 	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
 		// ------ Log outgoing data to file ---------
 		String filename = "client_" + ip + "_" + port + ".log";
 		String logData = o.GetValue("sensor_data");
 		if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
-		
+
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			out.write("send_ts \t" + logData);
 			out.close();
 		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 		// ------------------------------------------
+			
 		
+		  // Log outgoing data to file
 		  byte[] messageInBytes = o.toJSONString().getBytes();
 	      InetAddress address = InetAddress.getByName(ip);
 	      DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
