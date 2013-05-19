@@ -1,28 +1,29 @@
 package com.aalto.protocol.design.iotps.udp.engine;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
+import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
 
 public class UDPClientEngine {
-
-	private static final int CLIENT_INTERFACE_PORT = 5060;
 	
 	private static DatagramSocket dsocket = null;
 	
 	private static final int BUFFER_LENGTH = 2048;
 	
-	public static void listenForClientMessages() throws Exception {
+	public static void listenForClientMessages(int port) throws Exception {
 		
 		byte[] buffer = new byte[BUFFER_LENGTH];
 		DatagramPacket udpPacket = new DatagramPacket(buffer, buffer.length);
 		if(null == dsocket){
-			dsocket = new DatagramSocket(CLIENT_INTERFACE_PORT);
+			dsocket = new DatagramSocket(port);
 		}
 		
 		while(true) {
@@ -57,9 +58,20 @@ public class UDPClientEngine {
 		}
 	}
 	
-	public static void sendToClient(String ip, int port, String message) throws Exception {
+	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
+		// ------ Log outgoing data to file ---------
+		String filename = "client_" + ip + "_" + port + ".log";
+		String logData = o.GetValue("sensor_data");
+		if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
 		
-		  byte[] messageInBytes = message.getBytes();
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			out.write("send_ts \t" + logData);
+			out.close();
+		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+		// ------------------------------------------
+		
+		  byte[] messageInBytes = o.toJSONString().getBytes();
 	      InetAddress address = InetAddress.getByName(ip);
 	      DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
 	      DatagramSocket dsocket = new DatagramSocket();
@@ -71,10 +83,12 @@ public class UDPClientEngine {
 	public static void main(String[] args) {
 		try {
 			
-			listenForClientMessages();
+			listenForClientMessages(5080);
 			int i = 0;
 			while(i<100){
-				sendToClient("127.0.0.1",5060,"Some random Message--"+i);
+				JSON_Object o = new JSON_Object();
+				o.AddItem("message", "Some random Message--"+i);
+				sendToClient("127.0.0.1",5060,o);
 				i++;
 			}
 			System.out.println("Sent");

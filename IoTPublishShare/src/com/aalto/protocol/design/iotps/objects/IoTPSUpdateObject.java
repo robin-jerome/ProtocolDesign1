@@ -42,15 +42,20 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	
 	
 	public String getJSONString() {
+		JSON_Object o = this.getJSONObject();
+		return o.toJSONString();
+	}
+	
+	public JSON_Object getJSONObject() {
 		JSON_Object o = new JSON_Object();
 		o.AddItem("client_ip", this.client_ip);
 		o.AddItem("client_port", this.client_port + "");
-		o.AddItem("device_id", this.device_id);
+		o.AddItem("dev_id", this.device_id);
 		o.AddItem("seq_no", this.getSeqNo() + "");
 		o.AddItem("sub_seq_no", this.getSubSeqNo() + "");
 		o.AddItem("timestamp", this.getTimestamp() + "");
 		o.AddItem("sensor_data", this.getSensorData());
 		o.AddItem("version", this.getVersion() + "");
-		return o.toJSONString();
+		return o;
 	}
 }

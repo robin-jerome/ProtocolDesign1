@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import com.aalto.protocol.design.datastructure.MyQueue;
 import com.aalto.protocol.design.datastructure.Packet;
+import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
 import com.aalto.protocol.design.iotps.udp.engine.UDPClientEngine;
 
 public class PacketSender {
@@ -70,11 +71,18 @@ public class PacketSender {
 			        	
 			        	if(null != myQueue){ // Only non-null Queue is processed
 			        		
-			        		LinkedList<Packet> packetList = myQueue.getSendingWindow();
-				        	for( Packet packet: packetList ) {
+			        		LinkedList<Packet> packetList = null;
+			        		
+			        		if(IoTPSServerStarter.isCongestionControlSupported) {
+			        			packetList = myQueue.getSendingWindow();
+			        		} else {
+			        			packetList = myQueue.getPacketsToSend();
+			        		}
+			        				
+			        		for( Packet packet: packetList ) {
 				        		if(!packet.isSent()){
 				        			try {
-										UDPClientEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject().toJSONString());
+										UDPClientEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject());
 										packet.setSent(true); // setting that the packet has been sent
 									} catch (Exception e) {
 										System.err.println("Packet Sending Failed:"+e.getMessage());
