@@ -1,7 +1,8 @@
 package com.aalto.protocol.design.iotps.start;
 
-import com.aalto.protocol.design.iotps.udp.engine.UDPClientEngine;
-import com.aalto.protocol.design.iotps.udp.engine.UDPSensorEngine;
+import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
+import com.aalto.protocol.design.iotps.udp.engine.ServerToSensorUDPEngine;
+
 
 public class IoTPSServerStarter {
 
@@ -22,7 +23,6 @@ public class IoTPSServerStarter {
 		} else if (version > 1) {
 			isCongestionControlSupported = true;
 		}
-		 // TODO ??????
 		
 		if (args.length != 2) System.err.println("Incorrect number of arguments!");
 		final int publishPort = Integer.parseInt(args[0]);
@@ -30,7 +30,7 @@ public class IoTPSServerStarter {
 		
 		Thread clientListenThread = new Thread(new Runnable() 
 				{ public void run() {try {
-					UDPClientEngine.listenForClientMessages(subscribePort);
+					ServerToClientUDPEngine.listenForClientMessages(subscribePort);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -39,7 +39,7 @@ public class IoTPSServerStarter {
 		
 		Thread sensorListenThread = new Thread(new Runnable() 
 		{ public void run() {try {
-			UDPSensorEngine.listenForSensorMessages(publishPort);
+			ServerToSensorUDPEngine.listenForSensorMessages(publishPort);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

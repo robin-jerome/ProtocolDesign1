@@ -12,7 +12,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
 
-public class UDPClientEngine {
+public class ServerToClientUDPEngine {
 	
 	private static DatagramSocket dsocket = null;
 	
@@ -58,22 +58,20 @@ public class UDPClientEngine {
 		}
 	}
 	
-	
 	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
+			
 		// ------ Log outgoing data to file ---------
 		String filename = "client_" + ip + "_" + port + ".log";
 		String logData = o.GetValue("sensor_data");
 		if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
-
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			out.write("send_ts \t" + logData);
 			out.close();
 		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 		// ------------------------------------------
-			
 		
-		  // Log outgoing data to file
+		
 		  byte[] messageInBytes = o.toJSONString().getBytes();
 	      InetAddress address = InetAddress.getByName(ip);
 	      DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
@@ -91,7 +89,7 @@ public class UDPClientEngine {
 			while(i<100){
 				JSON_Object o = new JSON_Object();
 				o.AddItem("message", "Some random Message--"+i);
-				sendToClient("127.0.0.1",5060,o);
+				sendToClient("127.0.0.1",5060, o);
 				i++;
 			}
 			System.out.println("Sent");
