@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import com.aalto.protocol.design.datastructure.MyQueue;
 import com.aalto.protocol.design.datastructure.Packet;
 import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
-import com.aalto.protocol.design.iotps.udp.engine.UDPClientEngine;
+import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
 
 public class PacketSender {
 
@@ -82,7 +82,7 @@ public class PacketSender {
 			        		for( Packet packet: packetList ) {
 				        		if(!packet.isSent()){
 				        			try {
-										UDPClientEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject().toJSONString());
+										ServerToClientUDPEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject().toJSONString());
 										packet.setSent(true); // setting that the packet has been sent
 									} catch (Exception e) {
 										System.err.println("Packet Sending Failed:"+e.getMessage());

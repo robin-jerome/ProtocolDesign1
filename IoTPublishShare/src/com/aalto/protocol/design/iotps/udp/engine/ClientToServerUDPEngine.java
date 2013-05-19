@@ -9,20 +9,25 @@ import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
 
-public class UDPClientEngine {
+/*  Think about
+ * 	===========
+ * 1. What happens when server doesn't acknowledge a Subscribe
+ * 
+ */
+public class ClientToServerUDPEngine {
 
-	private static final int CLIENT_INTERFACE_PORT = 5060;
+private static final int SERVER_INTERFACE_PORT = 5060;
 	
 	private static DatagramSocket dsocket = null;
 	
 	private static final int BUFFER_LENGTH = 2048;
 	
-	public static void listenForClientMessages() throws Exception {
+	public static void listenForServerMessages() throws Exception {
 		
 		byte[] buffer = new byte[BUFFER_LENGTH];
 		DatagramPacket udpPacket = new DatagramPacket(buffer, buffer.length);
 		if(null == dsocket){
-			dsocket = new DatagramSocket(CLIENT_INTERFACE_PORT);
+			dsocket = new DatagramSocket(SERVER_INTERFACE_PORT);
 		}
 		
 		while(true) {
@@ -32,32 +37,34 @@ public class UDPClientEngine {
 	            + receivedMsg);
 	        udpPacket.setLength(buffer.length);
 	        
-	        if(receivedMsg.contains("\"acknowledgement\"")){ // ACK message received from the client
+	        if(receivedMsg.contains("\"acknowledgement\"")){ 
+	        	/*
+	        	 *  ACKNOWLEDGEMENT packet received from the server
+	        	 *  ------------------------------------
+	        	 *  1. Log data
+	        	 *  
+	        	 *  3. Wonder if there is something else to do
+	        	 */
 	        	System.out.println("Ack message received");
-	        	try {
-	        		IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
-	        		AckEngine.removeFromPendingAcks(ackObj);
-	        	} catch (Exception e) {
-	        		continue;
-	        	}
 	        	
-	        } else if(receivedMsg.contains("\"subscribe\"")){ // Subscribe/Un-subscribe message received from the client
-	        	System.out.println("Subscribe message received");
-	        	try {
-	        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
-		        	if(receivedMsg.contains("unsubscribe")){  
-		        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
-		        	} else {
-		        		SubscribeEngine.addSubscription(subObj);	// Subscribe
-		        	}
-	        	} catch (Exception e) {
-	        		continue;
-	        	}
+	        	
+	        	
+	        } else { 
+	        	/*
+	        	 *  Data packet received from the server
+	        	 *  ------------------------------------
+	        	 *  1. Log data
+	        	 *  2. Send ACKNOWLEDGEMENT for correct sequence number
+	        	 *  3. Wonder if there is something else to do
+	        	 */
+	        	
+	        	System.out.println("Data message received");
+	        	
 	        }
 		}
 	}
 	
-	public static void sendToClient(String ip, int port, String message) throws Exception {
+	public static void sendToServer(String ip, int port, String message) throws Exception {
 			
 		
 		  // Log outgoing data to file
@@ -73,10 +80,10 @@ public class UDPClientEngine {
 	public static void main(String[] args) {
 		try {
 			
-			listenForClientMessages();
+			listenForServerMessages();
 			int i = 0;
 			while(i<100){
-				sendToClient("127.0.0.1",5060,"Some random Message--"+i);
+				sendToServer("127.0.0.1",5060,"Some random Message--"+i);
 				i++;
 			}
 			System.out.println("Sent");
@@ -85,5 +92,4 @@ public class UDPClientEngine {
 			e.printStackTrace();
 		}
 	}
-	
 }

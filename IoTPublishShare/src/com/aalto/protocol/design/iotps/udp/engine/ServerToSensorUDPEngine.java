@@ -3,7 +3,7 @@ package com.aalto.protocol.design.iotps.udp.engine;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPSensorEngine {
+public class ServerToSensorUDPEngine {
 	
 	private static final int SENSOR_INTERFACE_PORT = 5061;
 	
