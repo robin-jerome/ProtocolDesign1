@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.aalto.protocol.design.datastructure.Packet;
 import com.aalto.protocol.design.iotps.db.engine.DBEngine;
-import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;

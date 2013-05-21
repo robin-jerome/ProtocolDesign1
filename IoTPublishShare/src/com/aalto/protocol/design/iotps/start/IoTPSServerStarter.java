@@ -1,5 +1,8 @@
 package com.aalto.protocol.design.iotps.start;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
+
 import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToSensorUDPEngine;
 
@@ -9,6 +12,19 @@ public class IoTPSServerStarter {
 	public static int version = 1; // to be taken as argument
 
 	public static boolean isCongestionControlSupported = false;
+	
+	
+	public static int getSelfPort() {
+		return 5061; // To be changes
+	}
+
+	public static String getSelfIP() {
+		try {
+			return(Inet4Address.getLocalHost().getHostAddress());
+		} catch (UnknownHostException e) {
+			return "127.0.0.1"; // To be changed later
+		}
+	}
 
 	/* Arguments to the script
 	 * ./iot-server –p <publish port> -s <subscribe port>

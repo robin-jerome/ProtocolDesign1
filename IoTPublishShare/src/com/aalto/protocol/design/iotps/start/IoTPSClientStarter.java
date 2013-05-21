@@ -1,9 +1,9 @@
 package com.aalto.protocol.design.iotps.start;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.udp.engine.ClientToServerUDPEngine;
 import com.aalto.protocol.design.iotps.utils.Constants;
@@ -26,11 +26,6 @@ public class IoTPSClientStarter {
 	private static boolean isSubscribed = false;
 	
 	private static List<String> deviceIdList = new ArrayList<String>();
-	
-	private static final String SELF_IP = getSelfIP();
-	
-	private static final int SELF_PORT = getSelfPort();
-	
 	
 	public static boolean isSubscribed() {
 		return isSubscribed;
@@ -68,12 +63,16 @@ public class IoTPSClientStarter {
 		IoTPSClientStarter.isSubscribed = isSubscribed;
 	}
 
-	private static int getSelfPort() {
+	public static int getSelfPortListeningToServer() {
 		return 5062;
 	}
 
-	private static String getSelfIP() {
-		return "127.0.0.1"; // To be changed later
+	public static String getSelfIPListeningToServer() {
+		try {
+			return(Inet4Address.getLocalHost().getHostAddress());
+		} catch (UnknownHostException e) {
+			return "127.0.0.1"; // To be changed later
+		}
 	}
 	
 
@@ -102,6 +101,21 @@ public class IoTPSClientStarter {
 			for(int i=2; null!=args[i]; i++) {
 				deviceIdList.add(args[i]);
 			}
+			
+			Thread serverListenThread = new Thread(new Runnable() 
+			{ 
+				public void run() {
+					try {
+						ClientToServerUDPEngine.listenForServerMessages(getSelfPortListeningToServer());
+					} catch (Exception e) {
+						System.err.println("Error while starting to listen for Server messages");
+						e.printStackTrace();
+						System.exit(-1);
+					}
+				} 
+			});
+			serverListenThread.start();
+			
 			System.out.println("Request to subscribe to server with IP: "+serverIP+" Port: "+serverPort+" Number of devices: "+deviceIdList.size());
 			for(String deviceId: deviceIdList) {
 				System.out.println("Subscribe to server with IP: "+serverIP+" Port: "+serverPort+" DeviceId: "+deviceId);	
@@ -110,8 +124,8 @@ public class IoTPSClientStarter {
 				o.AddItem(Constants.ACTION, Constants.SUBSCRIBE + "");
 				o.AddItem("version", IoTPSClientStarter.getVersion() + "");
 				o.AddItem("seq_no", 1 + "");
-				o.AddItem("client_ip", ""+getSelfIP());
-				o.AddItem("client_port", ""+getSelfPort());
+				o.AddItem("client_ip", ""+getSelfIPListeningToServer());
+				o.AddItem("client_port", ""+getSelfPortListeningToServer());
 				o.AddItem("sub_seq_no", subscriptionId + "");
 				o.AddItem("device_id", deviceId + "");
 				o.AddItem("timestamp", System.currentTimeMillis() + "");

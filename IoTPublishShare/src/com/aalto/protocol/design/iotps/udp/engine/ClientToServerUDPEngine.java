@@ -4,13 +4,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
-
-import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
-import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
-import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.start.IoTPSClientStarter;
-import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
 import com.aalto.protocol.design.iotps.utils.Constants;
 
 /*  Think about
@@ -20,20 +15,18 @@ import com.aalto.protocol.design.iotps.utils.Constants;
  */
 public class ClientToServerUDPEngine {
 
-	private static final int SERVER_INTERFACE_PORT = 5060;
-
 	private static DatagramSocket dsocket = null;
 
 	private static final int BUFFER_LENGTH = 2048;
 	
 	public static HashMap<String , Long> unacknowledgedSubscibes = new HashMap<String, Long>();
 
-	public static void listenForServerMessages() throws Exception {
+	public static void listenForServerMessages(int serverInterfacePort) throws Exception {
 
 		byte[] buffer = new byte[BUFFER_LENGTH];
 		DatagramPacket udpPacket = new DatagramPacket(buffer, buffer.length);
 		if(null == dsocket){
-			dsocket = new DatagramSocket(SERVER_INTERFACE_PORT);
+			dsocket = new DatagramSocket(serverInterfacePort);
 		}
 
 		while(true) {
@@ -110,7 +103,7 @@ public class ClientToServerUDPEngine {
 	public static void main(String[] args) {
 		try {
 
-			listenForServerMessages();
+			listenForServerMessages(5061);
 			int i = 0;
 			while(i<100){
 				sendToServer("127.0.0.1",5060,"Some random Message--"+i);
