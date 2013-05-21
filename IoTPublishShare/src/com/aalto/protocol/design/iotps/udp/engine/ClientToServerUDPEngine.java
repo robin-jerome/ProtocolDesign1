@@ -26,7 +26,7 @@ public class ClientToServerUDPEngine {
 
 	private static final int BUFFER_LENGTH = 2048;
 	
-	private static HashMap<String , Long> unacknowledgedSubscibes = new HashMap<String, Long>();
+	public static HashMap<String , Long> unacknowledgedSubscibes = new HashMap<String, Long>();
 
 	public static void listenForServerMessages() throws Exception {
 
