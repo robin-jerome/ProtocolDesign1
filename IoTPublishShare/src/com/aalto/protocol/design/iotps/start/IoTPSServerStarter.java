@@ -7,7 +7,7 @@ import com.aalto.protocol.design.iotps.udp.engine.ServerToSensorUDPEngine;
 public class IoTPSServerStarter {
 
 	public static int version = 1; // to be taken as argument
-	
+
 	public static boolean isCongestionControlSupported = false;
 
 	/* Arguments to the script
@@ -15,35 +15,44 @@ public class IoTPSServerStarter {
 	 */
 	public static void main(String[] args) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-		    public void run() { System.out.println("Received ctrl+c: shutting down"); }
-		 });
-		
+			public void run() { System.out.println("Received ctrl+c: shutting down"); }
+		});
+
 		if(version == 1) {
 			isCongestionControlSupported = false;
 		} else if (version > 1) {
 			isCongestionControlSupported = true;
 		}
-		
+
 		if (args.length != 2) System.err.println("Incorrect number of arguments!");
 		final int publishPort = Integer.parseInt(args[0]);
 		final int subscribePort = Integer.parseInt(args[1]);
-		
+
 		Thread clientListenThread = new Thread(new Runnable() 
-				{ public void run() {try {
+		{ 
+			public void run() {
+				try {
 					ServerToClientUDPEngine.listenForClientMessages(subscribePort);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}} });
+				}
+			} 
+		});
 		clientListenThread.start();
-		
+
 		Thread sensorListenThread = new Thread(new Runnable() 
-		{ public void run() {try {
-			ServerToSensorUDPEngine.listenForSensorMessages(publishPort);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}} });
+		{ 
+			public void run() 
+			{
+				try {
+					ServerToSensorUDPEngine.listenForSensorMessages(publishPort);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		sensorListenThread.start();
 	}
 }
