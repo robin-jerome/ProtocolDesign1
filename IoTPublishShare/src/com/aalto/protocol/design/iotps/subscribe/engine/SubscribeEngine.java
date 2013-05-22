@@ -6,8 +6,12 @@ import com.aalto.protocol.design.iotps.db.engine.DBEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
+import com.aalto.protocol.design.iotps.objects.IoTPSUpdateObject;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSender;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
+import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
+import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
+import com.aalto.protocol.design.iotps.update.engine.UpdateEngine;
 import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class SubscribeEngine {
@@ -43,24 +47,46 @@ public class SubscribeEngine {
 		 */
 		String remoteIp = subObj.getIp();
 		int remotePort = subObj.getPort();
-		String selectClientQuery = "select * from client_table where ip = '"+remoteIp+"' and port ='"+remotePort+"'";
+		String deviceId = subObj.getDeviceId();
+		String selectClientQuery = "select * from client_table where ip = '"+remoteIp+"' and port ='"+remotePort+"' and device_id ='"+deviceId+"'";
 		List<IoTPSObject> iotPSObjectList = DBEngine.executeQuery(selectClientQuery, DBEngine.CLIENT_OBJECT);
 		if(null != iotPSObjectList && iotPSObjectList.size()>0){
 			// There is already a Subscription -- Delete and recreate
+			System.out.println("Subscription already exists - Recreating");
 			removeSubscription(subObj);
 		}
 		String insertClientQuery = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('"+subObj.getIp()+"',"+subObj.getPort()+","+subObj.getSubSeqNo()+","+subObj.getSeqNo()+", '"+subObj.getDeviceId()+"', "+subObj.getAckSupport()+", "+subObj.getVersion()+"); ";
 		DBEngine.executeUpdate(insertClientQuery);
+		System.out.println("Added client in the DB");
 		
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+remoteIp+":"+remotePort;
+		System.out.println("Queue Name to be added: "+queueName);
 		PacketSender ps = new PacketSender(IoTUtils.getMyClientFacingIp(), remoteIp, IoTUtils.getMyClientFacingPort(), remotePort);
 		PacketSenderRepo.packetSenderMap.put(queueName, ps);
 		PacketSenderRepo.packetSenderMap.get(queueName).startProcess();
-		
-		// Send ACK for the subscribe request
+		System.out.println("Started processing queue with queueName: "+queueName);
+		ServerToClientUDPEngine.sendAcknowledgementForSubscription(subObj);
 		
 		// Send First Update - If any
+		String selectInitialDataQuery = "select latest_json_data from sensor_table where device_id ='"+deviceId+"'";
+		String currentJSONDataString = DBEngine.executeQuery(selectInitialDataQuery);
+		String selectInitialSeqNumQuery = "select latest_seq_num from sensor_table where device_id ='"+deviceId+"'";
+		String currentSeqNumString = DBEngine.executeQuery(selectInitialSeqNumQuery);
 		
+		if(null!=currentJSONDataString && !"".equals(currentJSONDataString)) {
+			IoTPSUpdateObject obj = new IoTPSUpdateObject();
+			obj.setClientIp(remoteIp);
+			obj.setClientPort(remotePort);
+			obj.setSensorData(currentJSONDataString);
+			obj.setDeviceId(deviceId);
+			obj.setVersion(IoTPSServerStarter.version);
+			obj.setSubSeqNo(subObj.getSubSeqNo());
+			obj.setSeqNo(Integer.valueOf(currentSeqNumString));
+			obj.setAckSupport(subObj.getAckSupport());
+			obj.setTimestamp(System.currentTimeMillis());
+			UpdateEngine.sendUpdate(obj);
+			System.out.println("Sent initial update after subscription -"+obj);
+		}
 	}
 
 	public static void removeSubscription(IoTPSSubscribeObject subObj) {
@@ -81,6 +107,7 @@ public class SubscribeEngine {
 		if(PacketSenderRepo.packetSenderMap.containsKey(queueName)){
 			PacketSenderRepo.packetSenderMap.get(queueName).stopProcess();
 			PacketSenderRepo.packetSenderMap.remove(queueName);	
+			System.out.println("Queue removed "+queueName);
 		}
 		
 		System.out.println("Unsubscribe complete for "+subObj);

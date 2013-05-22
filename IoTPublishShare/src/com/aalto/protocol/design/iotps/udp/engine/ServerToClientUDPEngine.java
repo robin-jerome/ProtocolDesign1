@@ -51,10 +51,11 @@ public class ServerToClientUDPEngine {
 	        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
 		        	if(receivedMsg.contains("unsubscribe")){  
 		        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
+		        		sendAcknowledgementForSubscription(subObj);
 		        	} else {
 		        		SubscribeEngine.addSubscription(subObj);	// Subscribe
 		        	}
-		        	sendAcknowledgementForSubscription(subObj);
+		        	
 	        	} catch (Exception e) {
 	        		continue;
 	        	}
@@ -62,7 +63,7 @@ public class ServerToClientUDPEngine {
 		}
 	}
 	
-	private static void sendAcknowledgementForSubscription(IoTPSSubscribeObject subObj) {
+	public static void sendAcknowledgementForSubscription(IoTPSSubscribeObject subObj) {
 
 		JSON_Object o = new JSON_Object();
 		o.AddItem(Constants.ACTION, Constants.ACKNOWLEDGEMENT + "");
@@ -72,6 +73,7 @@ public class ServerToClientUDPEngine {
 		o.AddItem("timestamp", System.currentTimeMillis() + "");
 		try {
 			sendToClient(subObj.getIp(), subObj.getPort(), o);
+			System.out.println("Acknowledgement sent for subscribe/unsubscribe");
 		} catch (Exception e) {
 			System.err.println("Error while sending acknowledgement for subscribe/unsubscribe");
 			e.printStackTrace();

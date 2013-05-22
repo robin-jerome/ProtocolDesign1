@@ -4,6 +4,14 @@ public class IoTPSSensorObject extends IoTPSObject {
 
 	private String deviceId;
 	private int latestSeqNum;
+	private String latestData;
+	
+	public String getLatestData() {
+		return latestData;
+	}
+	public void setLatestData(String latestData) {
+		this.latestData = latestData;
+	}
 	public String getDeviceId() {
 		return deviceId;
 	}

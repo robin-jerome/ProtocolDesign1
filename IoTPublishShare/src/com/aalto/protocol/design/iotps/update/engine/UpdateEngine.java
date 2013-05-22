@@ -28,7 +28,26 @@ public class UpdateEngine {
 		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 		// ---------------------------------------------------
 		
-
+		/*
+		 * 1.Check for sensor in DB
+		 * 2.If not present, create new entry in table with correct values
+		 * 3.If present, update the existing sequence number and latest Json data
+		 */
+		
+		String sensorSelectQuery = "select * from sensor_table where device_id = '" + sensorUpdate.getDevId() + "'";
+		List<IoTPSObject> sensorObjList = DBEngine.executeQuery(sensorSelectQuery, DBEngine.SENSOR_OBJECT);
+		if(null!=sensorObjList && sensorObjList.size()>0) {
+			System.out.println("Sensor details already present in the server - Values will be updated");
+			String updateSensorQuery = "update sensor_table set (latest_seq_num, latest_json_data) values (?,?) where device_id = ?";
+			DBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
+			System.out.println("Sensor Value updation Successful");
+		} else {
+			System.out.println("Sensor details no present in the server - Values will be inserted");
+			String insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
+			DBEngine.executeUpdate(insertSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
+			System.out.println("Sensor Value insertion Successful");
+		}
+		
 		
 		List<IoTPSUpdateObject> updates = getUpdateObjects(sensorUpdate);
 		for (IoTPSUpdateObject o : updates) {

@@ -87,6 +87,7 @@ public class DBEngine {
 						IoTPSSensorObject sensorObj = new IoTPSSensorObject();
 						sensorObj.setDeviceId(resultSet.getString("device_id"));
 						sensorObj.setLatestSeqNum(resultSet.getInt("latest_seq_num"));
+						sensorObj.setLatestData(resultSet.getString("latest_json_data"));
 						returnObjectList.add(sensorObj);
 					} else if (CLIENT_OBJECT.equals(objectType)){
 						IoTPSClientObject clientObj = new IoTPSClientObject();
@@ -134,7 +135,46 @@ public class DBEngine {
 	}
 
 
+	public static String executeQuery(String selectQuery) {
 
+		Connection connection = null;
+		PreparedStatement ps = null;
+		String returnVal = null;
+		try {
+			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			if(null != connection)
+			{
+				ps = connection.prepareStatement(selectQuery);
+				ResultSet resultSet = ps.executeQuery();
+				while(resultSet.next()){
+					returnVal = resultSet.getString("latest_json_data");
+				}
+			}
+
+		} catch (SQLException e) {
+			System.out.println("DriverManager.getConnection Failed!");
+			e.printStackTrace();
+
+		} finally {
+
+			if (null != ps){
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (null != connection){
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return returnVal;
+	}
 
 	public static void executeUpdate(String updateQuery) {
 		
@@ -170,7 +210,44 @@ public class DBEngine {
 			}
 		}
 	}
+	
+	public static void executeUpdate(String updateQuery, int latestSeqNum, String jsonData, String deviceId) {
 		
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			if(null != connection)
+			{
+				ps = connection.prepareStatement(updateQuery);
+				ps.setInt(1, latestSeqNum);
+				ps.setString(2, jsonData);
+				ps.setString(3, deviceId);
+				ps.executeUpdate();
+			}
+	 
+		} catch (SQLException e) {
+			System.out.println("DriverManager.getConnection Failed!");
+			e.printStackTrace();
+			
+		} finally {
+		
+			if (null != ps){
+			try {
+					ps.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (null != connection){
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	
 
 }
