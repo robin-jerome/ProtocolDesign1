@@ -32,4 +32,9 @@ public class IoTPSAckObject {
 	public void setFromPort(int fromPort) {
 		this.fromPort = fromPort;
 	}
+	
+	@Override
+	public String toString() {
+		return "Subscription ID:"+sub_seq_no+" Sequence Number:"+seq_no+" From IP:"+fromIp+" From Port:"+fromPort;
+	}
 }

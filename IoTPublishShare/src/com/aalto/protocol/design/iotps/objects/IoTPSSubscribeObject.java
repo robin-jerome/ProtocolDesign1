@@ -52,4 +52,9 @@ public class IoTPSSubscribeObject {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+	
+	@Override
+	public String toString() {
+		return "Subscription ID:"+sub_seq_no+" Sequence Number:"+seq_no+" Device ID:"+deviceId+" From IP:"+ip+" From Port:"+port;
+	}
 }

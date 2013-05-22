@@ -10,7 +10,9 @@ import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
+import com.aalto.protocol.design.iotps.start.IoTPSClientStarter;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
+import com.aalto.protocol.design.iotps.utils.Constants;
 
 public class ServerToClientUDPEngine {
 	
@@ -33,17 +35,18 @@ public class ServerToClientUDPEngine {
 	            + receivedMsg);
 	        udpPacket.setLength(buffer.length);
 	        
-	        if(receivedMsg.contains("\"acknowledgement\"")){ // ACK message received from the client
-	        	System.out.println("Ack message received");
+	        if(receivedMsg.contains("\"acknowledgement\"")) { // ACK message received from the client
+	        	System.out.println("Ack message received::"+receivedMsg);
 	        	try {
 	        		IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
 	        		AckEngine.removeFromPendingAcks(ackObj);
 	        	} catch (Exception e) {
+	        		e.printStackTrace();
 	        		continue;
 	        	}
 	        	
-	        } else if(receivedMsg.contains("\"subscribe\"")){ // Subscribe/Un-subscribe message received from the client
-	        	System.out.println("Subscribe message received");
+	        } else if(receivedMsg.contains("\"subscribe\"")) { // Subscribe/Un-subscribe message received from the client
+	        	System.out.println("Subscribe message received::"+receivedMsg);
 	        	try {
 	        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
 		        	if(receivedMsg.contains("unsubscribe")){  
@@ -51,6 +54,7 @@ public class ServerToClientUDPEngine {
 		        	} else {
 		        		SubscribeEngine.addSubscription(subObj);	// Subscribe
 		        	}
+		        	sendAcknowledgementForSubscription(subObj);
 	        	} catch (Exception e) {
 	        		continue;
 	        	}
@@ -58,6 +62,23 @@ public class ServerToClientUDPEngine {
 		}
 	}
 	
+	private static void sendAcknowledgementForSubscription(IoTPSSubscribeObject subObj) {
+
+		JSON_Object o = new JSON_Object();
+		o.AddItem(Constants.ACTION, Constants.ACKNOWLEDGEMENT + "");
+		o.AddItem("version", IoTPSClientStarter.getVersion() + "");
+		o.AddItem("seq_no",  subObj.getSeqNo() + "");
+		o.AddItem("sub_seq_no", subObj.getSubSeqNo() + "");
+		o.AddItem("timestamp", System.currentTimeMillis() + "");
+		try {
+			sendToClient(subObj.getIp(), subObj.getPort(), o);
+		} catch (Exception e) {
+			System.err.println("Error while sending acknowledgement for subscribe/unsubscribe");
+			e.printStackTrace();
+		}
+
+	}
+
 	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
 			
 		// ------ Log outgoing data to file ---------

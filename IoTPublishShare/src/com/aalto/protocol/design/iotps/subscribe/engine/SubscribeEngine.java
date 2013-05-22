@@ -13,6 +13,7 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 public class SubscribeEngine {
 
 	public static IoTPSSubscribeObject getSubscribeObjectFromUDPMessage(String receivedMsg) throws Exception {
+		
 		JSON_Object o = new JSON_Object(receivedMsg);
 		IoTPSSubscribeObject subs = new IoTPSSubscribeObject();
 		subs.setDeviceId(o.GetValue("device_id"));
@@ -28,6 +29,7 @@ public class SubscribeEngine {
 			subs.setAckSupport(0);
 		}
 		
+		System.out.println("Subscribe/Unsubscribe object created from receivedMessage::"+subs);
 		return subs;
 	}
 
@@ -64,7 +66,6 @@ public class SubscribeEngine {
 	public static void removeSubscription(IoTPSSubscribeObject subObj) {
 		/*
 		 * 1. Remove entry from DB
-		 * 2. Send ACK if necessary
 		 * 3. Delete Queue from repo
 		 */
 		
@@ -73,7 +74,6 @@ public class SubscribeEngine {
 		// Delete from client DB 
 		String deleteQuery = "delete from client_table where ip = '"+remoteIp+"' and port ='"+remotePort+"'";
 		DBEngine.executeUpdate(deleteQuery);
-		// Send ACK for the un-subscribe request
 		
 		// Delete Queue from repo
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+remoteIp+":"+remotePort;
@@ -83,6 +83,7 @@ public class SubscribeEngine {
 			PacketSenderRepo.packetSenderMap.remove(queueName);	
 		}
 		
+		System.out.println("Unsubscribe complete for "+subObj);
 	}
 
 }
