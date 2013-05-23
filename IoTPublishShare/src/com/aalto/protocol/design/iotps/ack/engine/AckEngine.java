@@ -9,6 +9,7 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 public class AckEngine {
 
 	public static IoTPSAckObject getAckObjectFromUDPMessage(String receivedMsg) throws Exception {
+		
 		JSON_Object o = new JSON_Object(receivedMsg);
 		IoTPSAckObject ack = new IoTPSAckObject();
 		ack.setSeqNo((double)o.GetNumberValue("seq_no"));
@@ -17,7 +18,8 @@ public class AckEngine {
 		// TODO Schema or datagram??
 		ack.setFromIp(o.GetValue("client_ip"));
 		ack.setFromPort((int)o.GetNumberValue("client_port"));
-		//
+		System.out.println("Ack object created from receivedMessage::"+ack);
+		
 		return ack;
 	}
 
@@ -27,39 +29,36 @@ public class AckEngine {
 		String serverIp = IoTUtils.getMyClientFacingIp();
 		int serverPort = IoTUtils.getMyClientFacingPort();
 		String queueName = serverIp+":"+serverPort+"-"+remoteIp+":"+remotePort;
+		System.out.println("Queue Name for the ACK -"+queueName);
+		
 		if(PacketSenderRepo.packetSenderMap.containsKey(queueName)){
+			System.out.println("Queue Exists - "+queueName);
 			boolean removed = PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().removePacketWithSeqNumFromQueue(ackObj.getSeqNo());
-
+			System.out.println("Ack Removed - "+removed);
 			if(IoTPSServerStarter.isCongestionControlSupported){
-				if(removed){
+				if(removed) {
 					// either increment linearly or exponentially -- To be done
 					boolean isLinear = false;
 					if(isLinear){
 						PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().linearIncementCwnd();
+						System.out.println("Linear Increase in CWND ");
 					} else {
 						PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().exponentialIncementCwnd();
+						System.out.println("Exponential Increase in CWND ");
 					}
 
 				} else {
+
 					PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().halveCwnd();
+					System.out.println("Halving the CWND as the Acknowledgement is duplicate");
 				}
 			} else {
-				// Do nothing as congestion control is not supported
+				System.out.println("Server doesn't support Congestion Control - No change in rates");
 			}
 
-		}		
+		} else {
+			System.err.println("Queue Name -"+queueName+" does not exist - Something is wrong !!!");
+		} 
 	}
-
-	public static void main(String[] args) {
-		IoTPSAckObject ackMessage = null;
-		try {
-			ackMessage = getAckObjectFromUDPMessage("");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(ackMessage.getFromIp());
-	}
-
 
 }

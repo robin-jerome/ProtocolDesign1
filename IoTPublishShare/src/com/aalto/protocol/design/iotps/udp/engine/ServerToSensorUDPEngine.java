@@ -3,6 +3,10 @@ package com.aalto.protocol.design.iotps.udp.engine;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+import com.aalto.protocol.design.iotps.json.engine.SensorDataParser;
+import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;
+import com.aalto.protocol.design.iotps.update.engine.UpdateEngine;
+
 public class ServerToSensorUDPEngine {
 	
 	private static DatagramSocket dsocket = null;
@@ -23,7 +27,8 @@ public class ServerToSensorUDPEngine {
 	        System.out.println(udpPacket.getAddress().getHostName() + ": "
 	            + receivedMsg);
 	        udpPacket.setLength(buffer.length);
-			
+			IoTPSSensorUpdateObject sensorUpdateObject = SensorDataParser.generateSensorObject(receivedMsg);
+			UpdateEngine.update(sensorUpdateObject);
 		}
 	}
 	

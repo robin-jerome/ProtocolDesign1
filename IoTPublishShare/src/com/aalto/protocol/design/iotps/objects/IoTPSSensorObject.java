@@ -3,9 +3,17 @@ package com.aalto.protocol.design.iotps.objects;
 public class IoTPSSensorObject extends IoTPSObject {
 
 	private String deviceId;
+
 	private double latestSeqNum;
-	private String latest_data;
+	private String latestData;
 	
+	public String getLatestData() {
+		return latestData;
+	}
+	public void setLatestData(String latestData) {
+		this.latestData = latestData;
+	}
+
 	public String getDeviceId() {
 		return deviceId;
 	}
@@ -17,13 +25,5 @@ public class IoTPSSensorObject extends IoTPSObject {
 	}
 	public void setLatestSeqNum(double latestSeqNum) {
 		this.latestSeqNum = latestSeqNum;
-	}
-	
-	public String getLatestData() {
-		return latest_data;
-	}
-	
-	public void setLatestData(String data) {
-		this.latest_data = data;
 	}
 }

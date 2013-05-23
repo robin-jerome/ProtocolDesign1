@@ -1,20 +1,15 @@
 package com.aalto.protocol.design.iotps.utils;
 
+import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
+
 public class IoTUtils {
-	public static void main(String[] args) {
-		System.out.println("Test commit to see if the code works -- Checking Auto Commit");
-	}
-
 	
-
 	public static String getMyClientFacingIp() {
-		// TODO Auto-generated method stub
-		return null;
+		return IoTPSServerStarter.getSelfIP();
 	}
 
 	public static int getMyClientFacingPort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return IoTPSServerStarter.updatePort;
 	}
 
 }
