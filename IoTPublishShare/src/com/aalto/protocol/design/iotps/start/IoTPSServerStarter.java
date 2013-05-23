@@ -25,7 +25,7 @@ public class IoTPSServerStarter {
 		}
 		
 		if (args.length != 2) System.err.println("Incorrect number of arguments!");
-		final int publishPort = Integer.parseInt(args[0]);
+		final int sensorPort = Integer.parseInt(args[0]);
 		final int subscribePort = Integer.parseInt(args[1]);
 		
 		Thread clientListenThread = new Thread(new Runnable() 
@@ -39,7 +39,7 @@ public class IoTPSServerStarter {
 		
 		Thread sensorListenThread = new Thread(new Runnable() 
 		{ public void run() {try {
-			ServerToSensorUDPEngine.listenForSensorMessages(publishPort);
+			ServerToSensorUDPEngine.listenForSensorMessages(sensorPort);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

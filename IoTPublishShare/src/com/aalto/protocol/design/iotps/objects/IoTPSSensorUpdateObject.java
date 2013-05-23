@@ -4,7 +4,7 @@ package com.aalto.protocol.design.iotps.objects;
 public class IoTPSSensorUpdateObject {
 	private String devId;
 	private int devNumber;
-	private int seqNo;
+	private double seqNo;
 	private String data;
 	private Double timeStamp;
 	private int dataSize;
@@ -25,11 +25,11 @@ public class IoTPSSensorUpdateObject {
 		this.devNumber = devNumber;
 	}
 
-	public int getSeqNo() {
+	public double getSeqNo() {
 		return seqNo;
 	}
 
-	public void setSeqNo(int seqNo) {
+	public void setSeqNo(double seqNo) {
 		this.seqNo = seqNo;
 	}
 

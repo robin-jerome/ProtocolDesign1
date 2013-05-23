@@ -1,5 +1,7 @@
 package com.aalto.protocol.design.iotps.udp.engine;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -15,19 +17,17 @@ import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
  * 
  */
 public class ClientToServerUDPEngine {
-
-private static final int SERVER_INTERFACE_PORT = 5060;
 	
 	private static DatagramSocket dsocket = null;
 	
 	private static final int BUFFER_LENGTH = 2048;
 	
-	public static void listenForServerMessages() throws Exception {
+	public static void listenForServerMessages(int port) throws Exception {
 		
 		byte[] buffer = new byte[BUFFER_LENGTH];
 		DatagramPacket udpPacket = new DatagramPacket(buffer, buffer.length);
 		if(null == dsocket){
-			dsocket = new DatagramSocket(SERVER_INTERFACE_PORT);
+			dsocket = new DatagramSocket(port);
 		}
 		
 		while(true) {
@@ -58,6 +58,15 @@ private static final int SERVER_INTERFACE_PORT = 5060;
 	        	 *  3. Wonder if there is something else to do
 	        	 */
 	        	
+	        	// LOG
+	    		String filename = "client.log";
+	    		try {
+	    			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+	    			out.write("Receive_ts \t" + receivedMsg);
+	    			out.close();
+	    		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+	    		// ------------------------------------------
+	        	
 	        	System.out.println("Data message received");
 	        	
 	        }
@@ -80,7 +89,7 @@ private static final int SERVER_INTERFACE_PORT = 5060;
 	public static void main(String[] args) {
 		try {
 			
-			listenForServerMessages();
+			listenForServerMessages(5060);
 			int i = 0;
 			while(i<100){
 				sendToServer("127.0.0.1",5060,"Some random Message--"+i);

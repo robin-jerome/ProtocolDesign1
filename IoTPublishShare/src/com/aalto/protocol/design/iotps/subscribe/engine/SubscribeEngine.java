@@ -8,6 +8,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSender;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
+import com.aalto.protocol.design.iotps.update.engine.UpdateEngine;
 import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class SubscribeEngine {
@@ -58,6 +59,7 @@ public class SubscribeEngine {
 		// Send ACK for the subscribe request
 		
 		// Send First Update - If any
+		UpdateEngine.sendFirstUpdate(subObj);
 		
 	}
 
