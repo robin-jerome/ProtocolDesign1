@@ -3,8 +3,7 @@ package com.aalto.protocol.design.iotps.start;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.udp.engine.ClientToServerUDPEngine;
 import com.aalto.protocol.design.iotps.utils.Constants;
@@ -15,8 +14,6 @@ public class IoTPSClientStarter {
 
 	private static int version = 1; // to be taken as argument
 
-	private static long subscriptionId;
-
 	private static String clientIP;
 
 	private static int port;
@@ -25,20 +22,12 @@ public class IoTPSClientStarter {
 
 	private static int serverPort;
 	
-	private static boolean isSubscribed = false;
+	public static HashMap<String,Double> subscriptionIdSeqNumMap = new HashMap<String,Double>();
 	
-	private static List<String> deviceIdList = new ArrayList<String>();
+	private static HashMap<String,String> subscriptionIdDeviceIdMap = new HashMap<String,String>();
 	
-	public static boolean isSubscribed() {
-		return isSubscribed;
-	}
-
 	public static int getVersion() {
 		return version;
-	}
-
-	public static long getSubscriptionId() {
-		return subscriptionId;
 	}
 
 	public static String getClientIP() {
@@ -56,15 +45,7 @@ public class IoTPSClientStarter {
 	public static int getServerPort() {
 		return serverPort;
 	}
-
-	public static void setSubscriptionId(long subscriptionId) {
-		IoTPSClientStarter.subscriptionId = subscriptionId;
-	}
 	
-	public static void setSubscribed(boolean isSubscribed) {
-		IoTPSClientStarter.isSubscribed = isSubscribed;
-	}
-
 	public static int getSelfPortListeningToServer() {
 		return 5062;
 	}
@@ -103,7 +84,7 @@ public class IoTPSClientStarter {
 			serverIP = args[0];
 			serverPort = Integer.parseInt(args[1]);
 			for(int i=2; null!=args[i]; i++) {
-				deviceIdList.add(args[i]);
+				subscriptionIdDeviceIdMap.put(args[i],"");
 			}
 			
 			Thread serverListenThread = new Thread(new Runnable() 
@@ -120,8 +101,8 @@ public class IoTPSClientStarter {
 			});
 			serverListenThread.start();
 			
-			System.out.println("Request to subscribe to server with IP: "+serverIP+" Port: "+serverPort+" Number of devices: "+deviceIdList.size());
-			for(String deviceId: deviceIdList) {
+			System.out.println("Request to subscribe to server with IP: "+serverIP+" Port: "+serverPort+" Number of devices: "+subscriptionIdDeviceIdMap.keySet().size());
+			for(String deviceId: subscriptionIdDeviceIdMap.keySet()) {
 				System.out.println("Subscribe to server with IP: "+serverIP+" Port: "+serverPort+" DeviceId: "+deviceId);	
 				JSON_Object o = new JSON_Object();
 				long subscriptionId = System.currentTimeMillis();
@@ -136,36 +117,15 @@ public class IoTPSClientStarter {
 				try {
 					ClientToServerUDPEngine.sendToServer(getServerIP(), getServerPort(), o.toJSONString());
 					ClientToServerUDPEngine.unacknowledgedSubscibes.put(subscriptionId + "", 0L);
+					subscriptionIdDeviceIdMap.put(deviceId, ""+subscriptionId);
 					// Start a timer to retry failed subscriptions with exponential back-off
 				} catch (Exception e) {
 					System.err.println("Error while subscribing:");
 					e.printStackTrace();
+					System.exit(-1);
 				}
 			}
 			
-		}
-		
-		if (args.length != 3) System.err.println("Incorrect number of arguments!");
-		final String serverIp = args[0];
-		final int serverPort = Integer.parseInt(args[1]);
-		final int listenPort = Integer.parseInt(args[2]);
-		
-		// Listen to server
-		Thread clientListenThread = new Thread(new Runnable() 
-				{ public void run() {try {
-					ClientToServerUDPEngine.listenForServerMessages(listenPort);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}} });
-		clientListenThread.start();
-		
-		// Send messages to server TODO
-		try {
-			ClientToServerUDPEngine.sendToServer(serverIp, serverPort, "something");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
