@@ -5,65 +5,57 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
-import com.aalto.protocol.design.iotps.objects.IoTPSPendingAcksObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 
 public class SQLiteDBEngine {
 	
-	public static final String DB_USER_NAME = "root";
-	public static final String DB_PASSWORD = "root";
-	public static final String DB_URL = "jdbc:mysql://localhost:3306/iotps";
+	public static final String DB_URL = "jdbc:sqlite:iotps";
 	public static final String SENSOR_OBJECT = "sensor";
 	public static final String CLIENT_OBJECT = "client";
-	public static final String PENDING_ACK_OBJECT = "pending_acks";
+	
 	
 	static {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			System.out.println("Loaded MySQL JDBC Driver");
+			Class.forName("org.sqlite.JDBC");
+			System.out.println("Loaded SQLite JDBC Driver");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 	
-		String updateQuerySensor = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap', 1); ";
-		executeUpdate(updateQuerySensor);
-		String updateQueryClient = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('127.0.0.1', 5060, 1, 1, 'my_test_device', 0, 1); ";
-		executeUpdate(updateQueryClient);
-		String updateQueryPendingAck = "insert into pending_acks_table (sub_seq_no, seq_no) values (1, 1); ";
-		executeUpdate(updateQueryPendingAck);
-		
-		String selectSensorQuery = "select * from sensor_table; ";
-		List <IoTPSObject> sensorObjList = executeQuery(selectSensorQuery, SENSOR_OBJECT);
-		for (Iterator iterator = sensorObjList.iterator(); iterator.hasNext();) {
-			IoTPSSensorObject ioTPSObject = (IoTPSSensorObject) iterator.next();
-			System.out.println("--"+ioTPSObject.getDeviceId());
-		}
-		
-		String selectClientQuery = "select * from client_table; ";
-		List <IoTPSObject> clientObjList = executeQuery(selectClientQuery, CLIENT_OBJECT);
-		for (Iterator iterator = clientObjList.iterator(); iterator.hasNext();) {
-			IoTPSClientObject ioTPSObject = (IoTPSClientObject) iterator.next();
-			System.out.println("--"+ioTPSObject.getIp());
-		}
-		
-		String selectPendingAcksQuery = "select * from pending_acks_table; ";
-		List <IoTPSObject> pendingAcksObjList = executeQuery(selectPendingAcksQuery, PENDING_ACK_OBJECT);
-		for (Iterator iterator = pendingAcksObjList.iterator(); iterator.hasNext();) {
-			IoTPSPendingAcksObject ioTPSObject = (IoTPSPendingAcksObject) iterator.next();
-			System.out.println("--"+ioTPSObject.getSubSeqNo());
-		}
-		
+//		String updateQuerySensor = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap', 1); ";
+//		executeUpdate(updateQuerySensor);
+//		String updateQueryClient = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('127.0.0.1', 5060, 1, 1, 'my_test_device', 0, 1); ";
+//		executeUpdate(updateQueryClient);
+//		String updateQueryPendingAck = "insert into pending_acks_table (sub_seq_no, seq_no) values (1, 1); ";
+//		executeUpdate(updateQueryPendingAck);
+//		
+		Connection connection = DriverManager.getConnection("jdbc:sqlite:D:\\Software\\sqlite-shell-win32-x86-3071700\\iotps");  
+        Statement statement = connection.createStatement();  
+        ResultSet resultSet = statement.executeQuery("SELECT EMPNAME FROM EMPLOYEEDETAILS");  
+        while (resultSet.next()) {  
+            System.out.println("EMPLOYEE NAME:"  
+                    + resultSet.getString("EMPNAME"));  
+//		
+//		String selectClientQuery = "select * from client_table; ";
+//		List <IoTPSObject> clientObjList = executeQuery(selectClientQuery, CLIENT_OBJECT);
+//		for (Iterator iterator = clientObjList.iterator(); iterator.hasNext();) {
+//			IoTPSClientObject ioTPSObject = (IoTPSClientObject) iterator.next();
+//			System.out.println("--"+ioTPSObject.getIp());
+//		}
+//		
 		System.out.println("Query executed");
+	}
 	}
 
 
@@ -75,7 +67,7 @@ public class SQLiteDBEngine {
 		PreparedStatement ps = null;
 		List <IoTPSObject> returnObjectList = new ArrayList<IoTPSObject>();
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			connection = DriverManager.getConnection(DB_URL);
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(selectQuery);
@@ -98,12 +90,7 @@ public class SQLiteDBEngine {
 						clientObj.setVersion(resultSet.getInt("version"));
 						clientObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
 						returnObjectList.add(clientObj);
-					} else if (PENDING_ACK_OBJECT.equals(objectType)){
-						IoTPSPendingAcksObject pendingAcksObj = new IoTPSPendingAcksObject();
-						pendingAcksObj.setSeqNo(resultSet.getInt("seq_no"));
-						pendingAcksObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
-						returnObjectList.add(pendingAcksObj);
-					}
+					} 
 					
 				}
 			}
@@ -140,7 +127,7 @@ public class SQLiteDBEngine {
 		PreparedStatement ps = null;
 		String returnVal = null;
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			connection = DriverManager.getConnection(DB_URL);
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(selectQuery);
@@ -180,7 +167,7 @@ public class SQLiteDBEngine {
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			connection = DriverManager.getConnection(DB_URL );
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(updateQuery);
@@ -215,7 +202,7 @@ public class SQLiteDBEngine {
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER_NAME, DB_PASSWORD );
+			connection = DriverManager.getConnection(DB_URL);
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(updateQuery);
