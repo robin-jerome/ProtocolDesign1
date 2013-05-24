@@ -12,4 +12,8 @@ public class Constants {
 	
 	public static final String UPDATE = "update";
 
+	public static final String FIND = "find";
+	
+	public static final String RESULT = "result";
+	
 }

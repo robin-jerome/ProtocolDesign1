@@ -5,7 +5,10 @@ import java.io.FileWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.start.IoTPSClientStarter;
 import com.aalto.protocol.design.iotps.utils.Constants;
@@ -116,8 +119,40 @@ public class ClientToServerUDPEngine {
 				} else {
 					System.err.println("Received invalid values for sequence number: "+receivedSeqNum+" Subscription Id:"+receivedSubscriptionNum);
 				}
+			} else if (receivedMsg.contains("\""+Constants.RESULT+"\"")) { 
+				System.out.println("Received response for the find sensors request");
+				List<String> sensorNameList = findAvailableSensorsFromResult(receivedMsg);
+				if(sensorNameList.size()==0) {
+					System.out.println("No sensors could be found in the Server");
+				} else {
+					System.out.println(sensorNameList.size()+" sensors found in the Server");
+					int counter = 0;
+					for(String sensorName : sensorNameList) {
+						System.out.println(counter+": "+sensorName);
+						counter++;
+					}
+				}
+				System.exit(0);
 			}
 		}
+	}
+
+	// Expected data format [device_2, device_1]
+	private static List<String> findAvailableSensorsFromResult(String receivedMsg) {
+		
+		List<String> sensorNameList = new ArrayList<String>();
+		
+		JSON_Object o = new JSON_Object(receivedMsg);
+		String rawData = o.GetValue("sensors");
+		rawData = rawData.replace("[", "");
+		rawData = rawData.replace("]", "");
+		
+		if(!"".equals(rawData.trim())){
+			String [] deviceNameArray = rawData.trim().split(",");
+			sensorNameList = Arrays.asList(deviceNameArray);
+		}
+		
+		return sensorNameList;
 	}
 
 	/**

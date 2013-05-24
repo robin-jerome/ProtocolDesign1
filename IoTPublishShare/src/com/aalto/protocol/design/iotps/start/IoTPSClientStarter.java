@@ -3,16 +3,18 @@ package com.aalto.protocol.design.iotps.start;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.udp.engine.ClientToServerUDPEngine;
 import com.aalto.protocol.design.iotps.utils.Constants;
 
 
-
 public class IoTPSClientStarter {
 
-	private static int version = 1; // to be taken as argument
+	private static int version; // to be taken as argument
 
 	private static String clientIP;
 
@@ -83,8 +85,15 @@ public class IoTPSClientStarter {
 			
 			serverIP = args[0];
 			serverPort = Integer.parseInt(args[1]);
-			for(int i=2; null!=args[i]; i++) {
+			version = Integer.parseInt(args[2]);
+			
+			for(int i=3; null!=args[i]; i++) {
 				subscriptionIdDeviceIdMap.put(args[i],"");
+			}
+
+			if(subscriptionIdDeviceIdMap.keySet().size()==1 && subscriptionIdDeviceIdMap.keySet().contains(Constants.FIND)){
+				
+				sendRequestToFindSensors(serverIP,serverPort);
 			}
 			
 			Thread serverListenThread = new Thread(new Runnable() 
@@ -106,7 +115,7 @@ public class IoTPSClientStarter {
 				System.out.println("Subscribe to server with IP: "+serverIP+" Port: "+serverPort+" DeviceId: "+deviceId);	
 				JSON_Object o = new JSON_Object();
 				long subscriptionId = System.currentTimeMillis();
-				o.AddItem(Constants.ACTION, Constants.SUBSCRIBE + "");
+				o.AddItem(Constants.ACTION, Constants.SUBSCRIBE);
 				o.AddItem("version", IoTPSClientStarter.getVersion() + "");
 				o.AddItem("seq_no", 1 + "");
 				o.AddItem("client_ip", ""+getSelfIPListeningToServer());
@@ -128,5 +137,21 @@ public class IoTPSClientStarter {
 			
 		}
 	}
+
+	private static void sendRequestToFindSensors(String serverIP2,int serverPort2) {
+		JSON_Object o = new JSON_Object();
+		o.AddItem(Constants.ACTION, Constants.FIND);
+		o.AddItem("client_ip", ""+getSelfIPListeningToServer());
+		o.AddItem("client_port", ""+getSelfPortListeningToServer());
+		try {
+			ClientToServerUDPEngine.sendToServer(serverIP2, serverPort2, o.toJSONString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Sending request to find Sensors failed - Exiting");
+			System.exit(-1);
+		}
+	}
+
+	
 
 }

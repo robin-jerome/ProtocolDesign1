@@ -5,10 +5,14 @@ import java.io.FileWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.List;
 
 import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
+import com.aalto.protocol.design.iotps.db.engine.DBEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
+import com.aalto.protocol.design.iotps.objects.IoTPSObject;
+import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.start.IoTPSClientStarter;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
@@ -59,6 +63,29 @@ public class ServerToClientUDPEngine {
 	        	} catch (Exception e) {
 	        		continue;
 	        	}
+	        } else if(receivedMsg.contains("\""+Constants.FIND+"\"")) { 
+	        	System.out.println("Find sensor message received::"+receivedMsg);
+	        	JSON_Object o = new JSON_Object(receivedMsg);
+	    		String clientIp = o.GetValue("client_ip");
+	    		int clientPort = (int)o.GetNumberValue("client_port");
+	    		String sensorListString = "[";
+	    		String selectClientQuery = "select * from sensor_table";
+	    		List<IoTPSObject> iotPSObjectList = DBEngine.executeQuery(selectClientQuery, DBEngine.SENSOR_OBJECT);
+	    		for(IoTPSObject obj: iotPSObjectList) {
+	    			IoTPSSensorObject sensorObj = (IoTPSSensorObject)obj;
+	    			sensorListString = sensorListString + sensorObj.getDeviceId() + ",";
+	    		}
+	    		if(sensorListString.endsWith(",")){
+	    			sensorListString = sensorListString.substring(0, sensorListString.length()-1);
+	    		}
+	    		
+	    		sensorListString = sensorListString + "]";
+	    		
+	    		o = new JSON_Object();
+	    		o.AddItem(Constants.ACTION, Constants.RESULT);
+	    		o.AddItem("sensors", sensorListString);
+	    		sendToClient(clientIp, clientPort, o);
+	        	
 	        }
 		}
 	}
