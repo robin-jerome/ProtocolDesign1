@@ -57,8 +57,7 @@ public class IoTPSServerStarter {
 		}
 		
 		if (args.length != 2) System.err.println("Incorrect number of arguments!");
-		final int sensorPort = Integer.parseInt(args[0]);
-		final int subscribePort = Integer.parseInt(args[1]);
+		
 		
 		Thread clientListenThread = new Thread(new Runnable() 
 		{ 

@@ -211,7 +211,7 @@ public class DBEngine {
 		}
 	}
 	
-	public static void executeUpdate(String updateQuery, int latestSeqNum, String jsonData, String deviceId) {
+	public static void executeUpdate(String updateQuery, double latestSeqNum, String jsonData, String deviceId) {
 		
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -220,7 +220,7 @@ public class DBEngine {
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(updateQuery);
-				ps.setInt(1, latestSeqNum);
+				ps.setDouble(1, latestSeqNum);
 				ps.setString(2, jsonData);
 				ps.setString(3, deviceId);
 				ps.executeUpdate();
