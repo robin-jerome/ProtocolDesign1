@@ -1,6 +1,6 @@
 package com.aalto.protocol.design.iotps.objects;
 
-public class IoTPSPendingAcksObject extends IoTPSObject {
+class IoTPSPendingAcksObject extends IoTPSObject {
 
 	private double sub_seq_no;
 	private double seq_no;

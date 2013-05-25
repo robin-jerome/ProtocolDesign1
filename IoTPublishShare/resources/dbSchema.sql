@@ -20,10 +20,4 @@ ack_support INT DEFAULT 0,
 version INT DEFAULT 1,
 PRIMARY KEY (id)
 );
-create table IF NOT EXISTS pending_acks_table 
-(
-id INT NOT NULL AUTO_INCREMENT,
-sub_seq_no INT NOT NULL,
-seq_no INT NOT NULL,
-PRIMARY KEY (id)
-);
+

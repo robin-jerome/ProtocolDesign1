@@ -4,9 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.aalto.protocol.design.datastructure.Packet;
-import com.aalto.protocol.design.iotps.db.engine.DBEngine;
+import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
@@ -37,16 +36,16 @@ public class UpdateEngine {
 		 */
 		
 		String sensorSelectQuery = "select * from sensor_table where device_id = '" + sensorUpdate.getDevId() + "'";
-		List<IoTPSObject> sensorObjList = DBEngine.executeQuery(sensorSelectQuery, DBEngine.SENSOR_OBJECT);
+		List<IoTPSObject> sensorObjList = SQLiteDBEngine.executeQuery(sensorSelectQuery, SQLiteDBEngine.SENSOR_OBJECT);
 		if(null!=sensorObjList && sensorObjList.size()>0) {
 			System.out.println("Sensor details already present in the server - Values will be updated");
 			String updateSensorQuery = "update sensor_table set (latest_seq_num, latest_json_data) values (?,?) where device_id = ?";
-			DBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
+			SQLiteDBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
 			System.out.println("Sensor Value updation Successful");
 		} else {
 			System.out.println("Sensor details no present in the server - Values will be inserted");
 			String insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
-			DBEngine.executeUpdate(insertSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
+			SQLiteDBEngine.executeUpdate(insertSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
 			System.out.println("Sensor Value insertion Successful");
 		}
 		
@@ -59,7 +58,7 @@ public class UpdateEngine {
 	
 	public static List<IoTPSUpdateObject> getUpdateObjects(IoTPSSensorUpdateObject sensorUpdate) {
 		String selectClientQuery = "select * from client_table where device_id = '" + sensorUpdate.getDevId() + "'";
-		List<IoTPSObject> clients = DBEngine.executeQuery(selectClientQuery, DBEngine.CLIENT_OBJECT);
+		List<IoTPSObject> clients = SQLiteDBEngine.executeQuery(selectClientQuery, SQLiteDBEngine.CLIENT_OBJECT);
 		List<IoTPSUpdateObject> updates = new ArrayList<IoTPSUpdateObject>();
 		
 		for (IoTPSObject client : clients) {
@@ -110,7 +109,7 @@ public class UpdateEngine {
 	
 	public static String getLatestData(String dev_id) {
 		String latestDataQuery = "select * from sensor_table where device_id = '" + dev_id + "'";
-		List<IoTPSObject> clients = DBEngine.executeQuery(latestDataQuery, DBEngine.CLIENT_OBJECT);
+		List<IoTPSObject> clients = SQLiteDBEngine.executeQuery(latestDataQuery, SQLiteDBEngine.CLIENT_OBJECT);
 		
 		IoTPSSensorObject sensor = (IoTPSSensorObject)clients.get(0);
 		return sensor.getLatestData();

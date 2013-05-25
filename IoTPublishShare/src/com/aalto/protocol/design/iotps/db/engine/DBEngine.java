@@ -8,14 +8,12 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import com.aalto.protocol.design.iotps.objects.IoTPSClientObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
-import com.aalto.protocol.design.iotps.objects.IoTPSPendingAcksObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 
 
-public class DBEngine {
+class DBEngine {
 	
 	public static final String DB_USER_NAME = "root";
 	public static final String DB_PASSWORD = "root";
@@ -57,13 +55,6 @@ public class DBEngine {
 			System.out.println("--"+ioTPSObject.getIp());
 		}
 		
-		String selectPendingAcksQuery = "select * from pending_acks_table; ";
-		List <IoTPSObject> pendingAcksObjList = executeQuery(selectPendingAcksQuery, PENDING_ACK_OBJECT);
-		for (Iterator iterator = pendingAcksObjList.iterator(); iterator.hasNext();) {
-			IoTPSPendingAcksObject ioTPSObject = (IoTPSPendingAcksObject) iterator.next();
-			System.out.println("--"+ioTPSObject.getSubSeqNo());
-		}
-		
 		System.out.println("Query executed");
 	}
 
@@ -99,12 +90,7 @@ public class DBEngine {
 						clientObj.setVersion(resultSet.getInt("version"));
 						clientObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
 						returnObjectList.add(clientObj);
-					} else if (PENDING_ACK_OBJECT.equals(objectType)){
-						IoTPSPendingAcksObject pendingAcksObj = new IoTPSPendingAcksObject();
-						pendingAcksObj.setSeqNo(resultSet.getInt("seq_no"));
-						pendingAcksObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
-						returnObjectList.add(pendingAcksObj);
-					}
+					} 
 					
 				}
 			}

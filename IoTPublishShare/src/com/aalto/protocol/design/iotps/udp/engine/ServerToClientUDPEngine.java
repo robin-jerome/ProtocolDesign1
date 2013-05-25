@@ -6,9 +6,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.List;
-
 import com.aalto.protocol.design.iotps.ack.engine.AckEngine;
-import com.aalto.protocol.design.iotps.db.engine.DBEngine;
+import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSAckObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
@@ -70,7 +69,7 @@ public class ServerToClientUDPEngine {
 	    		int clientPort = (int)o.GetNumberValue("client_port");
 	    		String sensorListString = "[";
 	    		String selectClientQuery = "select * from sensor_table";
-	    		List<IoTPSObject> iotPSObjectList = DBEngine.executeQuery(selectClientQuery, DBEngine.SENSOR_OBJECT);
+	    		List<IoTPSObject> iotPSObjectList = SQLiteDBEngine.executeQuery(selectClientQuery, SQLiteDBEngine.SENSOR_OBJECT);
 	    		for(IoTPSObject obj: iotPSObjectList) {
 	    			IoTPSSensorObject sensorObj = (IoTPSSensorObject)obj;
 	    			sensorListString = sensorListString + sensorObj.getDeviceId() + ",";

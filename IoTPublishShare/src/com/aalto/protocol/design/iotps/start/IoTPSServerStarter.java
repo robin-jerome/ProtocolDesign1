@@ -3,6 +3,7 @@ package com.aalto.protocol.design.iotps.start;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
+import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToSensorUDPEngine;
 
@@ -39,7 +40,7 @@ public class IoTPSServerStarter {
 			}
 		});
 
-		if (args.length != 4) {
+		if (args.length < 4) {
 			System.err.println("Incorrect number of arguments! - Exiting program");
 			System.exit(-1);
 		}
@@ -48,7 +49,11 @@ public class IoTPSServerStarter {
 		subscribePort = Integer.parseInt(args[1]);
 		updatePort = Integer.parseInt(args[2]);
 		version = Integer.parseInt(args[3]);
+		String dbUrl = args[4];
 		
+		if(null != dbUrl && !"".equals(dbUrl.trim())) {
+			SQLiteDBEngine.DB_URL = dbUrl;
+		}
 		
 		if(version == 1) {
 			isCongestionControlSupported = false;

@@ -2,7 +2,8 @@ package com.aalto.protocol.design.iotps.subscribe.engine;
 
 import java.util.List;
 
-import com.aalto.protocol.design.iotps.db.engine.DBEngine;
+
+import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
@@ -49,14 +50,14 @@ public class SubscribeEngine {
 		int remotePort = subObj.getPort();
 		String deviceId = subObj.getDeviceId();
 		String selectClientQuery = "select * from client_table where ip = '"+remoteIp+"' and port ='"+remotePort+"' and device_id ='"+deviceId+"'";
-		List<IoTPSObject> iotPSObjectList = DBEngine.executeQuery(selectClientQuery, DBEngine.CLIENT_OBJECT);
+		List<IoTPSObject> iotPSObjectList = SQLiteDBEngine.executeQuery(selectClientQuery, SQLiteDBEngine.CLIENT_OBJECT);
 		if(null != iotPSObjectList && iotPSObjectList.size()>0){
 			// There is already a Subscription -- Delete and recreate
 			System.out.println("Subscription already exists - Recreating");
 			removeSubscription(subObj);
 		}
 		String insertClientQuery = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('"+subObj.getIp()+"',"+subObj.getPort()+","+subObj.getSubSeqNo()+","+subObj.getSeqNo()+", '"+subObj.getDeviceId()+"', "+subObj.getAckSupport()+", "+subObj.getVersion()+"); ";
-		DBEngine.executeUpdate(insertClientQuery);
+		SQLiteDBEngine.executeUpdate(insertClientQuery);
 		System.out.println("Added client in the DB");
 		
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+remoteIp+":"+remotePort;
@@ -69,9 +70,9 @@ public class SubscribeEngine {
 		
 		// Send First Update - If any
 		String selectInitialDataQuery = "select latest_json_data from sensor_table where device_id ='"+deviceId+"'";
-		String currentJSONDataString = DBEngine.executeQuery(selectInitialDataQuery);
+		String currentJSONDataString = SQLiteDBEngine.executeQuery(selectInitialDataQuery);
 		String selectInitialSeqNumQuery = "select latest_seq_num from sensor_table where device_id ='"+deviceId+"'";
-		String currentSeqNumString = DBEngine.executeQuery(selectInitialSeqNumQuery);
+		String currentSeqNumString = SQLiteDBEngine.executeQuery(selectInitialSeqNumQuery);
 		
 		if(null!=currentJSONDataString && !"".equals(currentJSONDataString)) {
 			IoTPSUpdateObject obj = new IoTPSUpdateObject();
@@ -99,7 +100,7 @@ public class SubscribeEngine {
 		int remotePort = subObj.getPort();
 		// Delete from client DB 
 		String deleteQuery = "delete from client_table where ip = '"+remoteIp+"' and port ='"+remotePort+"'";
-		DBEngine.executeUpdate(deleteQuery);
+		SQLiteDBEngine.executeUpdate(deleteQuery);
 		
 		// Delete Queue from repo
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+remoteIp+":"+remotePort;

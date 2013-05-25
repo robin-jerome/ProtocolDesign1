@@ -26,4 +26,9 @@ public class IoTPSSensorObject extends IoTPSObject {
 	public void setLatestSeqNum(double latestSeqNum) {
 		this.latestSeqNum = latestSeqNum;
 	}
+	
+	@Override
+	public String toString() {
+		return deviceId+" "+latestSeqNum+" "+latestData;
+	}
 }

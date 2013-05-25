@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +15,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 
 public class SQLiteDBEngine {
 	
-	public static final String DB_URL = "jdbc:sqlite:iotps";
+	public static String DB_URL = "jdbc:sqlite:D:\\Software\\sqlite-shell-win32-x86-3071700\\iotps";
 	public static final String SENSOR_OBJECT = "sensor";
 	public static final String CLIENT_OBJECT = "client";
 	
@@ -33,29 +32,17 @@ public class SQLiteDBEngine {
 	
 	public static void main(String[] args) throws SQLException {
 	
-//		String updateQuerySensor = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap', 1); ";
-//		executeUpdate(updateQuerySensor);
-//		String updateQueryClient = "insert into client_table (ip, port, sub_seq_no, seq_no, device_id, ack_support, version) values ('127.0.0.1', 5060, 1, 1, 'my_test_device', 0, 1); ";
-//		executeUpdate(updateQueryClient);
-//		String updateQueryPendingAck = "insert into pending_acks_table (sub_seq_no, seq_no) values (1, 1); ";
-//		executeUpdate(updateQueryPendingAck);
-//		
-		Connection connection = DriverManager.getConnection("jdbc:sqlite:D:\\Software\\sqlite-shell-win32-x86-3071700\\iotps");  
-        Statement statement = connection.createStatement();  
-        ResultSet resultSet = statement.executeQuery("SELECT EMPNAME FROM EMPLOYEEDETAILS");  
-        while (resultSet.next()) {  
-            System.out.println("EMPLOYEE NAME:"  
-                    + resultSet.getString("EMPNAME"));  
-//		
-//		String selectClientQuery = "select * from client_table; ";
-//		List <IoTPSObject> clientObjList = executeQuery(selectClientQuery, CLIENT_OBJECT);
-//		for (Iterator iterator = clientObjList.iterator(); iterator.hasNext();) {
-//			IoTPSClientObject ioTPSObject = (IoTPSClientObject) iterator.next();
-//			System.out.println("--"+ioTPSObject.getIp());
-//		}
-//		
+		String updateQuerySensor = "insert into sensor_table (device_id,latest_seq_num) values ('my_crap1', 2); ";
+		executeUpdate(updateQuerySensor);
+		String selectClientQuery = "select * from sensor_table; ";
+		List <IoTPSObject> clientObjList = executeQuery(selectClientQuery, SENSOR_OBJECT);
+		for (Iterator iterator = clientObjList.iterator(); iterator.hasNext();) {
+			IoTPSSensorObject ioTPSObject = (IoTPSSensorObject) iterator.next();
+			System.out.println("--"+ioTPSObject);
+		}
+		
 		System.out.println("Query executed");
-	}
+
 	}
 
 
