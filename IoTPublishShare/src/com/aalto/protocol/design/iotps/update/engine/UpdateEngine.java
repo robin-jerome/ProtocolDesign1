@@ -39,7 +39,7 @@ public class UpdateEngine {
 		List<IoTPSObject> sensorObjList = SQLiteDBEngine.executeQuery(sensorSelectQuery, SQLiteDBEngine.SENSOR_OBJECT);
 		if(null!=sensorObjList && sensorObjList.size()>0) {
 			System.out.println("Sensor details already present in the server - Values will be updated");
-			String updateSensorQuery = "update sensor_table set (latest_seq_num, latest_json_data) values (?,?) where device_id = ?";
+			String updateSensorQuery = "update sensor_table set latest_seq_num = ?, latest_json_data = ? where device_id = ?";
 			SQLiteDBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
 			System.out.println("Sensor Value updation Successful");
 		} else {
@@ -49,6 +49,10 @@ public class UpdateEngine {
 			System.out.println("Sensor Value insertion Successful");
 		}
 		
+		// logic to Update the new Sequence number in the client table for every update received from sensor
+		// This new 
+		String updateClientSeqNumQuery = "update client_table set seq_no = (seq_no + 1) where device_id = '"+sensorUpdate.getDevId()+"'";
+		SQLiteDBEngine.executeUpdate(updateClientSeqNumQuery);
 		
 		List<IoTPSUpdateObject> updates = getUpdateObjects(sensorUpdate);
 		for (IoTPSUpdateObject o : updates) {

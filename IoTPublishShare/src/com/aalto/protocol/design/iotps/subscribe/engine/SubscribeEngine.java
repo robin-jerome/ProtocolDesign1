@@ -17,9 +17,9 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class SubscribeEngine {
 
-	public static IoTPSSubscribeObject getSubscribeObjectFromUDPMessage(String receivedMsg) throws Exception {
+	public static IoTPSSubscribeObject getSubscribeObjectFromUDPMessage(JSON_Object o) throws Exception {
 		
-		JSON_Object o = new JSON_Object(receivedMsg);
+		
 		IoTPSSubscribeObject subs = new IoTPSSubscribeObject();
 		subs.setDeviceId(o.GetValue("device_id"));
 		subs.setIp(o.GetValue("client_ip"));

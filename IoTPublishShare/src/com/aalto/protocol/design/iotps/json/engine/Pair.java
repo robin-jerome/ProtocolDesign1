@@ -17,5 +17,6 @@ public class Pair {
 	public Pair(String key, String value) {
 		this.Key = key;
 		this.Value = value;
+		this.type = data_type.STRING;
 	}
 }

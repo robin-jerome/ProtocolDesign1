@@ -14,6 +14,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.start.IoTPSClientStarter;
+import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
 import com.aalto.protocol.design.iotps.subscribe.engine.SubscribeEngine;
 import com.aalto.protocol.design.iotps.utils.Constants;
 
@@ -32,39 +33,41 @@ public class ServerToClientUDPEngine {
 		}
 		
 		while(true) {
-			dsocket.receive(udpPacket);
-			String receivedMsg = new String(buffer, 0, udpPacket.getLength());
-	        System.out.println(udpPacket.getAddress().getHostName() + ": "
-	            + receivedMsg);
-	        udpPacket.setLength(buffer.length);
-	        
-	        if(receivedMsg.contains("\"acknowledgement\"")) { // ACK message received from the client
+		
+		dsocket.receive(udpPacket);
+		String receivedMsg = new String(buffer, 0, udpPacket.getLength());
+        System.out.println(udpPacket.getAddress().getHostName() + ": "
+            + receivedMsg);
+        udpPacket.setLength(buffer.length);
+        
+        try {
+			JSON_Object o = new JSON_Object(receivedMsg);
+			String action = o.GetValue(Constants.ACTION);
+			int version = (int)o.GetNumberValue(Constants.VERSION);
+		
+        
+	        if(action.equalsIgnoreCase("acknowledgement")) {
 	        	System.out.println("Ack message received::"+receivedMsg);
-	        	try {
-	        		IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(receivedMsg);
-	        		AckEngine.removeFromPendingAcks(ackObj);
-	        	} catch (Exception e) {
-	        		e.printStackTrace();
+        		IoTPSAckObject ackObj = AckEngine.getAckObjectFromUDPMessage(o);
+        		AckEngine.removeFromPendingAcks(ackObj);
+        		
+	        } else if(action.equalsIgnoreCase("subscribe")) { 
+	        	System.out.println("Subscribe message received::"+receivedMsg);
+	        	IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(o);
+	        	if (version != IoTPSServerStarter.version) {
+	        		sendErrorAcknowledgement (subObj, Constants.ERROR_VERSION_MISMATCH);
 	        		continue;
+	        	} else {
+	        		SubscribeEngine.addSubscription(subObj);
 	        	}
 	        	
-	        } else if(receivedMsg.contains("\"subscribe\"")) { // Subscribe/Un-subscribe message received from the client
-	        	System.out.println("Subscribe message received::"+receivedMsg);
-	        	try {
-	        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(receivedMsg);
-		        	if(receivedMsg.contains("unsubscribe")){  
-		        		SubscribeEngine.removeSubscription(subObj); // Unsubscribe
-		        		sendAcknowledgementForSubscription(subObj);
-		        	} else {
-		        		SubscribeEngine.addSubscription(subObj);	// Subscribe
-		        	}
-		        	
-	        	} catch (Exception e) {
-	        		continue;
-	        	}
-	        } else if(receivedMsg.contains("\""+Constants.FIND+"\"")) { 
+	        } else if (action.equalsIgnoreCase("unsubscribe")) {
+        		IoTPSSubscribeObject subObj = SubscribeEngine.getSubscribeObjectFromUDPMessage(o);
+        		SubscribeEngine.removeSubscription(subObj); 
+        		sendAcknowledgementForSubscription(subObj);
+        		
+	        } else if(o.GetValue("action").equalsIgnoreCase(Constants.FIND)) { 
 	        	System.out.println("Find sensor message received::"+receivedMsg);
-	        	JSON_Object o = new JSON_Object(receivedMsg);
 	    		String clientIp = o.GetValue("client_ip");
 	    		int clientPort = (int)o.GetNumberValue("client_port");
 	    		String sensorListString = "[";
@@ -86,7 +89,13 @@ public class ServerToClientUDPEngine {
 	    		sendToClient(clientIp, clientPort, o);
 	        	
 	        }
+	        
+        } catch (Exception e) {
+        	System.err.println("Error;;;;;;;;;;;;");
+        	e.printStackTrace();
+			continue;
 		}
+	}
 	}
 	
 	public static void sendAcknowledgementForSubscription(IoTPSSubscribeObject subObj) {
@@ -109,17 +118,22 @@ public class ServerToClientUDPEngine {
 
 	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
 			
-		// ------ Log outgoing data to file ---------
-		String filename = "client_" + ip + "_" + port + ".log";
-		String logData = o.GetValue("sensor_data");
-		if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-			out.write("send_ts \t" + logData);
-			out.close();
-		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
-		// ------------------------------------------
 		
+		
+String action = o.GetValue(Constants.ACTION);
+		
+		if (action.equalsIgnoreCase(Constants.UPDATE)) {
+			// ------ Log outgoing data to file ---------
+			String filename = "client_" + ip + "_" + port + ".log";
+			String logData = o.GetValue("sensor_data");
+			if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
+			try {
+				BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+				out.write("send_ts \t" + logData);
+				out.close();
+			} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+			// ------------------------------------------
+		}
 		
 		  byte[] messageInBytes = o.toJSONString().getBytes();
 	      InetAddress address = InetAddress.getByName(ip);
@@ -128,6 +142,23 @@ public class ServerToClientUDPEngine {
 	      dsocket.send(packet);
 	      dsocket.close();
 		
+	}
+	
+	public static void sendErrorAcknowledgement (IoTPSSubscribeObject subObj, int reason) {
+		JSON_Object o = new JSON_Object();
+		o.AddItem(Constants.ACTION, Constants.ACKNOWLEDGEMENT + "");
+		o.AddItem("version", IoTPSClientStarter.getVersion() + "");
+		o.AddItem("seq_no",  subObj.getSeqNo() + "");
+		o.AddItem("sub_seq_no", subObj.getSubSeqNo() + "");
+		o.AddItem("timestamp", System.currentTimeMillis() + "");
+		o.AddItem("reason", String.valueOf(reason));
+		try {
+			sendToClient(subObj.getIp(), subObj.getPort(), o);
+			System.out.println("Error acknowledgement with reason " + reason + " sent for subscribe/unsubscribe");
+		} catch (Exception e) {
+			System.err.println("Error while sending error acknowledgement for subscribe/unsubscribe");
+			e.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {

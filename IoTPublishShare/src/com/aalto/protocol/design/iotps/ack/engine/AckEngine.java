@@ -8,9 +8,8 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
 public class AckEngine {
 
-	public static IoTPSAckObject getAckObjectFromUDPMessage(String receivedMsg) throws Exception {
+	public static IoTPSAckObject getAckObjectFromUDPMessage(JSON_Object o) throws Exception {
 		
-		JSON_Object o = new JSON_Object(receivedMsg);
 		IoTPSAckObject ack = new IoTPSAckObject();
 		ack.setSeqNo((double)o.GetNumberValue("seq_no"));
 		ack.setSubSeqNo((double)o.GetNumberValue("sub_seq_no"));
@@ -38,7 +37,7 @@ public class AckEngine {
 			if(IoTPSServerStarter.isCongestionControlSupported){
 				if(removed) {
 					// either increment linearly or exponentially -- To be done
-					boolean isLinear = false;
+					boolean isLinear = true;
 					if(isLinear){
 						PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().linearIncementCwnd();
 						System.out.println("Linear Increase in CWND ");

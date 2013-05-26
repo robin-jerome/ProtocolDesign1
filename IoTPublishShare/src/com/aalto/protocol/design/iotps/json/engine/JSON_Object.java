@@ -7,7 +7,7 @@ public class JSON_Object {
 	
 	private String raw_string;
 	private boolean IsValid;
-	private ArrayList<Pair> Items;
+	private ArrayList<Pair> Items = new ArrayList<Pair>();
 	
 	
 	// ==============

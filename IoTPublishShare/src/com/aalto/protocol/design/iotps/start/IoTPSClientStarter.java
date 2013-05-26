@@ -78,7 +78,7 @@ public class IoTPSClientStarter {
 			public void run() { System.out.println("Received ctrl+c: shutting down"); }
 		});
 		
-		if (args.length <= 2) {
+		if (args.length < 4) {
 			System.err.println("Incorrect number of arguments!");
 			System.exit(-1);
 		} else {
@@ -87,15 +87,12 @@ public class IoTPSClientStarter {
 			serverPort = Integer.parseInt(args[1]);
 			version = Integer.parseInt(args[2]);
 			
-			for(int i=3; null!=args[i]; i++) {
+			System.out.println(serverIP+serverPort+version);
+			
+			for(int i=3; i<args.length; i++) {
 				subscriptionIdDeviceIdMap.put(args[i],"");
 			}
 
-			if(subscriptionIdDeviceIdMap.keySet().size()==1 && subscriptionIdDeviceIdMap.keySet().contains(Constants.FIND)){
-				
-				sendRequestToFindSensors(serverIP,serverPort);
-			}
-			
 			Thread serverListenThread = new Thread(new Runnable() 
 			{ 
 				public void run() {
@@ -110,30 +107,45 @@ public class IoTPSClientStarter {
 			});
 			serverListenThread.start();
 			
-			System.out.println("Request to subscribe to server with IP: "+serverIP+" Port: "+serverPort+" Number of devices: "+subscriptionIdDeviceIdMap.keySet().size());
-			for(String deviceId: subscriptionIdDeviceIdMap.keySet()) {
-				System.out.println("Subscribe to server with IP: "+serverIP+" Port: "+serverPort+" DeviceId: "+deviceId);	
-				JSON_Object o = new JSON_Object();
-				long subscriptionId = System.currentTimeMillis();
-				o.AddItem(Constants.ACTION, Constants.SUBSCRIBE);
-				o.AddItem("version", IoTPSClientStarter.getVersion() + "");
-				o.AddItem("seq_no", 1 + "");
-				o.AddItem("client_ip", ""+getSelfIPListeningToServer());
-				o.AddItem("client_port", ""+getSelfPortListeningToServer());
-				o.AddItem("sub_seq_no", subscriptionId + "");
-				o.AddItem("device_id", deviceId + "");
-				o.AddItem("timestamp", System.currentTimeMillis() + "");
-				try {
-					ClientToServerUDPEngine.sendToServer(getServerIP(), getServerPort(), o.toJSONString());
-					ClientToServerUDPEngine.unacknowledgedSubscibes.put(subscriptionId + "", 0L);
-					subscriptionIdDeviceIdMap.put(deviceId, ""+subscriptionId);
-					// Start a timer to retry failed subscriptions with exponential back-off
-				} catch (Exception e) {
-					System.err.println("Error while subscribing:");
-					e.printStackTrace();
-					System.exit(-1);
+			try {
+				System.out.println("Sleeping for 5 seconds to start listenting to server messages");
+				Thread.sleep(5000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			
+			if(subscriptionIdDeviceIdMap.keySet().size()==1 && subscriptionIdDeviceIdMap.keySet().contains(Constants.FIND)){
+				
+				sendRequestToFindSensors(serverIP,serverPort);
+			}
+			
+			if(!(subscriptionIdDeviceIdMap.keySet().size()==1 && subscriptionIdDeviceIdMap.keySet().contains(Constants.FIND))) {
+				System.out.println("Request to subscribe to server with IP: "+serverIP+" Port: "+serverPort+" Number of devices: "+subscriptionIdDeviceIdMap.keySet().size());
+				for(String deviceId: subscriptionIdDeviceIdMap.keySet()) {
+					System.out.println("Subscribe to server with IP: "+serverIP+" Port: "+serverPort+" DeviceId: "+deviceId);	
+					JSON_Object o = new JSON_Object();
+					long subscriptionId = System.currentTimeMillis();
+					o.AddItem(Constants.ACTION, Constants.SUBSCRIBE);
+					o.AddItem("version", IoTPSClientStarter.getVersion() + "");
+					o.AddItem("seq_no", 1 + "");
+					o.AddItem("client_ip", ""+getSelfIPListeningToServer());
+					o.AddItem("client_port", ""+getSelfPortListeningToServer());
+					o.AddItem("sub_seq_no", subscriptionId + "");
+					o.AddItem("device_id", deviceId + "");
+					o.AddItem("timestamp", System.currentTimeMillis() + "");
+					try {
+						ClientToServerUDPEngine.sendToServer(getServerIP(), getServerPort(), o.toJSONString());
+						ClientToServerUDPEngine.unacknowledgedSubscibes.put(subscriptionId + "", 0L);
+						subscriptionIdDeviceIdMap.put(deviceId, ""+subscriptionId);
+						// Start a timer to retry failed subscriptions with exponential back-off
+					} catch (Exception e) {
+						System.err.println("Error while subscribing:");
+						e.printStackTrace();
+						System.exit(-1);
+					}
 				}
 			}
+			
 			
 		}
 	}
@@ -143,6 +155,7 @@ public class IoTPSClientStarter {
 		o.AddItem(Constants.ACTION, Constants.FIND);
 		o.AddItem("client_ip", ""+getSelfIPListeningToServer());
 		o.AddItem("client_port", ""+getSelfPortListeningToServer());
+		o.AddItem("version", ""+version);
 		try {
 			ClientToServerUDPEngine.sendToServer(serverIP2, serverPort2, o.toJSONString());
 		} catch (Exception e) {

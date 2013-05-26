@@ -15,5 +15,11 @@ public class Constants {
 	public static final String FIND = "find";
 	
 	public static final String RESULT = "result";
+
+	public static final String VERSION = "version";
+
+	public static final int ERROR_VERSION_MISMATCH = 420;
+	
+
 	
 }

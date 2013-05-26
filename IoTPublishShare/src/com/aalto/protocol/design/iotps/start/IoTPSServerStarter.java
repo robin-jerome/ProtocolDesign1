@@ -2,6 +2,7 @@ package com.aalto.protocol.design.iotps.start;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
@@ -19,6 +20,8 @@ public class IoTPSServerStarter {
 	public static int version = 1; 
 
 	public static boolean isCongestionControlSupported = false;
+	
+	public static HashMap<String,Double> subscriptionIdSeqNumMap = new HashMap<String,Double>();
 	
 	public static String getSelfIP() {
 		try {
@@ -45,10 +48,12 @@ public class IoTPSServerStarter {
 			System.exit(-1);
 		}
 		
+		System.out.println(args[0]);
 		publishPort = Integer.parseInt(args[0]);
 		subscribePort = Integer.parseInt(args[1]);
 		updatePort = Integer.parseInt(args[2]);
 		version = Integer.parseInt(args[3]);
+		
 		String dbUrl = args[4];
 		
 		if(null != dbUrl && !"".equals(dbUrl.trim())) {
@@ -60,8 +65,6 @@ public class IoTPSServerStarter {
 		} else if (version > 1) {
 			isCongestionControlSupported = true;
 		}
-		
-		if (args.length != 2) System.err.println("Incorrect number of arguments!");
 		
 		
 		Thread clientListenThread = new Thread(new Runnable() 
