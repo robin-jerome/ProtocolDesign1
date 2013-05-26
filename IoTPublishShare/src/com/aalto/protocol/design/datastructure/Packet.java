@@ -4,17 +4,17 @@ import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 
 public class Packet {
 
-	private double seqNum = 0;
+	private long seqNum = 0L;
 	
 	private boolean sent = false;
 	
 	private JSON_Object jsonObject = new JSON_Object();
 
-	public double getSeqNum() {
+	public long getSeqNum() {
 		return seqNum;
 	}
 
-	public void setSeqNum(double seqNum) {
+	public void setSeqNum(long seqNum) {
 		this.seqNum = seqNum;
 	}
 

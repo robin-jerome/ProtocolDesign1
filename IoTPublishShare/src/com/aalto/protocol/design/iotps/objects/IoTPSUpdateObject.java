@@ -6,9 +6,9 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	private String client_ip;
 	private int client_port;
 	private String device_id;
-	private double seq_no;
-	private double sub_seq_no;
-	private double timestamp;
+	private long seq_no;
+	private long sub_seq_no;
+	private long timestamp;
 	private String sensor_data;
 	private int version;
 	private int ack_support;
@@ -22,14 +22,14 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	public String getDeviceId() {return device_id;}
 	public void setDeviceId(String id) {this.device_id = id;}
 	
-	public double getSeqNo() {return seq_no;}
-	public void setSeqNo(double seq) {this.seq_no = seq;}
+	public long getSeqNo() {return seq_no;}
+	public void setSeqNo(long seq) {this.seq_no = seq;}
 	
-	public double getSubSeqNo() {return sub_seq_no;}
-	public void setSubSeqNo(double sub) {this.sub_seq_no = sub;}
+	public long getSubSeqNo() {return sub_seq_no;}
+	public void setSubSeqNo(long sub) {this.sub_seq_no = sub;}
 	
-	public double getTimestamp() {return timestamp;}
-	public void setTimestamp(double ts) {this.timestamp = ts;}
+	public long getTimestamp() {return timestamp;}
+	public void setTimestamp(long ts) {this.timestamp = ts;}
 	
 	public String getSensorData() {return sensor_data;}
 	public void setSensorData(String data) {this.sensor_data = data;}

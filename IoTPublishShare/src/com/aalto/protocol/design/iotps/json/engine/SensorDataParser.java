@@ -45,13 +45,13 @@ public class SensorDataParser {
 	}
 		
 
-	private static  Double extractTimeStamp(String revdMsg) {//returns ts field or -1 for errors
+	private static  Long extractTimeStamp(String revdMsg) {//returns ts field or -1 for errors
 		String timeStampString = (extractFieldWithName("ts",revdMsg));
 		if(timeStampString == null){
 			return null;
 		} else {
 			try{
-				return(Double.parseDouble(extractFieldWithName("ts",revdMsg)));	
+				return(Long.parseLong(extractFieldWithName("ts",revdMsg)));	
 			} catch (NumberFormatException ex ){
 				return null;
 			}

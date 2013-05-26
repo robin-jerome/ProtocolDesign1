@@ -11,8 +11,8 @@ public class AckEngine {
 	public static IoTPSAckObject getAckObjectFromUDPMessage(JSON_Object o) throws Exception {
 		
 		IoTPSAckObject ack = new IoTPSAckObject();
-		ack.setSeqNo((double)o.GetNumberValue("seq_no"));
-		ack.setSubSeqNo((double)o.GetNumberValue("sub_seq_no"));
+		ack.setSeqNo(o.GetNumberValue("seq_no"));
+		ack.setSubSeqNo(o.GetNumberValue("sub_seq_no"));
 
 		// TODO Schema or datagram??
 		ack.setFromIp(o.GetValue("client_ip"));

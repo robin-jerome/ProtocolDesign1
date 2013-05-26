@@ -56,11 +56,11 @@ public class ClientToServerUDPEngine {
 				 */
 				System.out.println("Ack message received::"+receivedMsg);
 				JSON_Object dataJSON = new JSON_Object(receivedMsg);
-				double receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
+				long receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
 				System.out.println("Subscription Id received::"+receivedSubscriptionNum);
 				if(unacknowledgedSubscibes.containsKey(""+receivedSubscriptionNum)){
 					System.out.println("Acknowledge message received for Valid SubscriptionId - Subscription Complete");
-					IoTPSClientStarter.subscriptionIdSeqNumMap.put(""+receivedSubscriptionNum, Double.valueOf(0L));
+					IoTPSClientStarter.subscriptionIdSeqNumMap.put(""+receivedSubscriptionNum, Long.valueOf(0L));
 					unacknowledgedSubscibes.remove(""+receivedSubscriptionNum);
 				} else {
 					System.err.println("Acknowledge message received for Invalid SubscriptionId - Will be unsubscribed");
@@ -73,7 +73,6 @@ public class ClientToServerUDPEngine {
 				 *  Data packet received from the server
 				 *  ------------------------------------
 				 *  1. Log data
-				 *  2. Send ACKNOWLEDGEMENT for correct sequence number
 				 *  3. Wonder if there is something else to do
 				 */
 				// LOG
@@ -86,14 +85,14 @@ public class ClientToServerUDPEngine {
 				// ------------------------------------------
 
 				JSON_Object dataJSON = new JSON_Object(receivedMsg);
-				double receivedSeqNum = dataJSON.GetNumberValue("seq_no");
-				double receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
-				double responseSeqNum = receivedSeqNum;
+				long receivedSeqNum = dataJSON.GetNumberValue("seq_no");
+				long receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
+				long responseSeqNum = receivedSeqNum;
 
 				if(receivedSeqNum > 0) { // Valid update message
 
-					Double currentSeqNum = IoTPSClientStarter.subscriptionIdSeqNumMap.get(""+receivedSubscriptionNum);
-					if( null != currentSeqNum ) {
+					long currentSeqNum = IoTPSClientStarter.subscriptionIdSeqNumMap.get(""+receivedSubscriptionNum);
+					if( currentSeqNum >= 0L ) {
 						System.out.println(" Update recieved for a valid subscription");
 						if(!(receivedSeqNum == currentSeqNum+1)) { 
 							System.out.println(" Duplicate update received - Sending ACK for latest update ");
@@ -160,8 +159,8 @@ public class ClientToServerUDPEngine {
 	 * @param responseSeqNum
 	 * @throws Exception
 	 */
-	private static void sendAcknowledgement(double receivedSubscriptionNum,
-			double responseSeqNum) throws Exception {
+	private static void sendAcknowledgement(long receivedSubscriptionNum,
+			long responseSeqNum) throws Exception {
 		JSON_Object o = new JSON_Object();
 		o.AddItem(Constants.ACTION, Constants.ACKNOWLEDGEMENT + "");
 		o.AddItem("version", IoTPSClientStarter.getVersion() + "");
@@ -176,8 +175,8 @@ public class ClientToServerUDPEngine {
 	 * @param responseSeqNum
 	 * @throws Exception
 	 */
-	private static void sendUnsubscriptionMessage(double receivedSubscriptionNum, 
-			double responseSeqNum) throws Exception {
+	private static void sendUnsubscriptionMessage(long receivedSubscriptionNum, 
+			long responseSeqNum) throws Exception {
 		JSON_Object o = new JSON_Object();
 		o.AddItem(Constants.ACTION, Constants.UNSUBSCRIBE + "");
 		o.AddItem("version", IoTPSClientStarter.getVersion() + "");

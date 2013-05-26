@@ -24,8 +24,8 @@ public class SubscribeEngine {
 		subs.setDeviceId(o.GetValue("device_id"));
 		subs.setIp(o.GetValue("client_ip"));
 		subs.setPort((int)o.GetNumberValue("client_port"));
-		subs.setSeqNo((int)o.GetNumberValue("seq_no"));
-		subs.setSubSeqNo((int)o.GetNumberValue("sub_seq_no"));
+		subs.setSeqNo(o.GetNumberValue("seq_no"));
+		subs.setSubSeqNo(o.GetNumberValue("sub_seq_no"));
 		subs.setVersion(1); //TODO
 		
 		try {
@@ -82,7 +82,7 @@ public class SubscribeEngine {
 			obj.setDeviceId(deviceId);
 			obj.setVersion(IoTPSServerStarter.version);
 			obj.setSubSeqNo(subObj.getSubSeqNo());
-			obj.setSeqNo(Integer.valueOf(currentSeqNumString));
+			obj.setSeqNo(Long.valueOf(currentSeqNumString));
 			obj.setAckSupport(subObj.getAckSupport());
 			obj.setTimestamp(System.currentTimeMillis());
 			UpdateEngine.sendUpdate(obj);

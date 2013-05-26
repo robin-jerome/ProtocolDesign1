@@ -83,12 +83,12 @@ class DBEngine {
 					} else if (CLIENT_OBJECT.equals(objectType)){
 						IoTPSClientObject clientObj = new IoTPSClientObject();
 						clientObj.setDeviceId(resultSet.getString("device_id"));
-						clientObj.setSeqNo(resultSet.getInt("seq_no"));
+						clientObj.setSeqNo(resultSet.getLong("seq_no"));
 						clientObj.setIp(resultSet.getString("ip"));
 						clientObj.setAckSupport(resultSet.getInt("ack_support"));
 						clientObj.setPort(resultSet.getInt("port"));
 						clientObj.setVersion(resultSet.getInt("version"));
-						clientObj.setSubSeqNo(resultSet.getInt("sub_seq_no"));
+						clientObj.setSubSeqNo(resultSet.getLong("sub_seq_no"));
 						returnObjectList.add(clientObj);
 					} 
 					
@@ -197,7 +197,7 @@ class DBEngine {
 		}
 	}
 	
-	public static void executeUpdate(String updateQuery, double latestSeqNum, String jsonData, String deviceId) {
+	public static void executeUpdate(String updateQuery, long latestSeqNum, String jsonData, String deviceId) {
 		
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -206,7 +206,7 @@ class DBEngine {
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(updateQuery);
-				ps.setDouble(1, latestSeqNum);
+				ps.setLong(1, latestSeqNum);
 				ps.setString(2, jsonData);
 				ps.setString(3, deviceId);
 				ps.executeUpdate();

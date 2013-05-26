@@ -21,7 +21,7 @@ public class IoTPSServerStarter {
 
 	public static boolean isCongestionControlSupported = false;
 	
-	public static HashMap<String,Double> subscriptionIdSeqNumMap = new HashMap<String,Double>();
+	public static HashMap<String,Long> subscriptionIdSeqNumMap = new HashMap<String,Long>();
 	
 	public static String getSelfIP() {
 		try {

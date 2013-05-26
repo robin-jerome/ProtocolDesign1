@@ -24,7 +24,7 @@ public class IoTPSClientStarter {
 
 	private static int serverPort;
 	
-	public static HashMap<String,Double> subscriptionIdSeqNumMap = new HashMap<String,Double>();
+	public static HashMap<String,Long> subscriptionIdSeqNumMap = new HashMap<String,Long>();
 	
 	private static HashMap<String,String> subscriptionIdDeviceIdMap = new HashMap<String,String>();
 	
@@ -49,7 +49,7 @@ public class IoTPSClientStarter {
 	}
 	
 	public static int getSelfPortListeningToServer() {
-		return 5062;
+		return 5063;
 	}
 
 	public static String getSelfIPListeningToServer() {
@@ -133,9 +133,11 @@ public class IoTPSClientStarter {
 					o.AddItem("sub_seq_no", subscriptionId + "");
 					o.AddItem("device_id", deviceId + "");
 					o.AddItem("timestamp", System.currentTimeMillis() + "");
+					System.out.println(subscriptionId);
 					try {
 						ClientToServerUDPEngine.sendToServer(getServerIP(), getServerPort(), o.toJSONString());
 						ClientToServerUDPEngine.unacknowledgedSubscibes.put(subscriptionId + "", 0L);
+						System.out.println(o.toJSONString());
 						subscriptionIdDeviceIdMap.put(deviceId, ""+subscriptionId);
 						// Start a timer to retry failed subscriptions with exponential back-off
 					} catch (Exception e) {

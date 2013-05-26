@@ -70,7 +70,7 @@ public class MyQueue {
 		
 	}
 	
-	public boolean removePacketWithSeqNumFromQueue(double seqNum){
+	public boolean removePacketWithSeqNumFromQueue(long seqNum){
 		boolean removed = false;
 		if(IoTPSServerStarter.isCongestionControlSupported){
 			for (Packet packet : windowLinkedList){

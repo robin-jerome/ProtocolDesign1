@@ -118,8 +118,8 @@ public class JSON_Object {
 		return Boolean.parseBoolean(this.GetValue(key));
 	}
 	
-	public double GetNumberValue (String key) throws Exception {
-		return Double.parseDouble(this.GetValue(key));
+	public long GetNumberValue (String key) throws Exception {
+		return Long.parseLong(this.GetValue(key));
 	}
 	
 	public String[] GetArrayValue(String key) throws Exception {
