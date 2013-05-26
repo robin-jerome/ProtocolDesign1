@@ -12,7 +12,7 @@ import com.aalto.protocol.design.iotps.utils.Constants;
 
 public class IoTPSClientStarter {
 
-	private static int version; // to be taken as argument
+	private static int version = 1; // to be taken as argument
 
 	private static String clientIP;
 

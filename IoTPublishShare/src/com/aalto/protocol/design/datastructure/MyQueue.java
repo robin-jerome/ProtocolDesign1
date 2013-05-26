@@ -81,7 +81,9 @@ public class MyQueue {
 			}
 			return removed;
 		} else {
+			System.out.println("Size of list::"+packetsLinkedList.size());
 			for (Packet packet : packetsLinkedList){
+				System.out.println("=============="+packet);
 				if(packet.isSent() && packet.getSeqNum()==seqNum){
 					removed = removeFromQueue(packet);
 					break;

@@ -82,7 +82,7 @@ public class SubscribeEngine {
 			obj.setDeviceId(deviceId);
 			obj.setVersion(IoTPSServerStarter.version);
 			obj.setSubSeqNo(subObj.getSubSeqNo());
-			obj.setSeqNo(Long.valueOf(currentSeqNumString));
+			obj.setSeqNo(2L);
 			obj.setAckSupport(subObj.getAckSupport());
 			obj.setTimestamp(System.currentTimeMillis());
 			UpdateEngine.sendUpdate(obj);

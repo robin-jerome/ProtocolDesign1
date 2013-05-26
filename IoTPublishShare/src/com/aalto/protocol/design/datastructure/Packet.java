@@ -39,4 +39,10 @@ public class Packet {
 	public void setSent(boolean sent) {
 		this.sent = sent;
 	}
+	
+	@Override
+	public String toString() {
+		
+		return "SN "+seqNum+"  "+sent+ "";
+	}
 }

@@ -91,7 +91,7 @@ public class ClientToServerUDPEngine {
 
 				if(receivedSeqNum > 0) { // Valid update message
 
-					if(IoTPSClientStarter.subscriptionIdSeqNumMap.contains(""+receivedSubscriptionNum)){ // subscribed
+					if(IoTPSClientStarter.subscriptionIdSeqNumMap.containsKey(""+receivedSubscriptionNum)){ // subscribed
 						System.out.println(" Update recieved for a valid subscription");
 						long currentSeqNum = IoTPSClientStarter.subscriptionIdSeqNumMap.get(""+receivedSubscriptionNum);
 						if(currentSeqNum == 0L) { // Might be first update
@@ -170,6 +170,8 @@ public class ClientToServerUDPEngine {
 		JSON_Object o = new JSON_Object();
 		o.AddItem(Constants.ACTION, Constants.ACKNOWLEDGEMENT + "");
 		o.AddItem("version", IoTPSClientStarter.getVersion() + "");
+		o.AddItem("client_ip", IoTPSClientStarter.getSelfIPListeningToServer() + "");
+		o.AddItem("client_port", IoTPSClientStarter.getSelfPortListeningToServer() + "");
 		o.AddItem("seq_no", responseSeqNum + "");
 		o.AddItem("sub_seq_no", receivedSubscriptionNum + "");
 		o.AddItem("timestamp", System.currentTimeMillis() + "");
