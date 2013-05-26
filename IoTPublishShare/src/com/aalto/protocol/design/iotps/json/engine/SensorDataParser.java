@@ -51,7 +51,7 @@ public class SensorDataParser {
 			return null;
 		} else {
 			try{
-				return(Long.parseLong(extractFieldWithName("ts",revdMsg)));	
+				return(Long.parseLong(extractFieldWithName("ts",revdMsg).substring(0, extractFieldWithName("ts",revdMsg).indexOf("."))));	
 			} catch (NumberFormatException ex ){
 				return null;
 			}
