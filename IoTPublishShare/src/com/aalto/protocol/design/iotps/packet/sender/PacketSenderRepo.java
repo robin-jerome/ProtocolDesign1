@@ -1,9 +1,9 @@
 package com.aalto.protocol.design.iotps.packet.sender;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketSenderRepo {
 	
-	public static HashMap<String, PacketSender> packetSenderMap = new HashMap<String, PacketSender>();
+	public static ConcurrentHashMap<String, PacketSender> packetSenderMap = new ConcurrentHashMap<String, PacketSender>();
 
 }

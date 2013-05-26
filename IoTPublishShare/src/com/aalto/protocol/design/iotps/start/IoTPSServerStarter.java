@@ -2,7 +2,7 @@ package com.aalto.protocol.design.iotps.start;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.aalto.protocol.design.iotps.db.engine.SQLiteDBEngine;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
@@ -21,7 +21,7 @@ public class IoTPSServerStarter {
 
 	public static boolean isCongestionControlSupported = false;
 	
-	public static HashMap<String,Long> subscriptionIdSeqNumMap = new HashMap<String,Long>();
+	public static ConcurrentHashMap<String,Long> subscriptionIdSeqNumMap = new ConcurrentHashMap<String,Long>();
 	
 	public static String getSelfIP() {
 		try {

@@ -1,6 +1,7 @@
 package com.aalto.protocol.design.iotps.objects;
 
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
+import com.aalto.protocol.design.iotps.utils.Constants;
 
 public class IoTPSUpdateObject extends IoTPSObject{
 	private String client_ip;
@@ -48,6 +49,7 @@ public class IoTPSUpdateObject extends IoTPSObject{
 	
 	public JSON_Object getJSONObject() {
 		JSON_Object o = new JSON_Object();
+		o.AddItem(Constants.ACTION, Constants.UPDATE);
 		o.AddItem("client_ip", this.client_ip);
 		o.AddItem("client_port", this.client_port + "");
 		o.AddItem("dev_id", this.device_id);

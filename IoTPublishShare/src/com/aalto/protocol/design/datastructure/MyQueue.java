@@ -1,20 +1,20 @@
 package com.aalto.protocol.design.datastructure;
 
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
 
 public class MyQueue {
 
-	private LinkedList<Packet> packetsLinkedList= new LinkedList<Packet>();
+	private ConcurrentLinkedQueue<Packet> packetsLinkedList= new ConcurrentLinkedQueue<Packet>();
 	
-	private LinkedList<Packet> windowLinkedList= new LinkedList<Packet>();
+	private ConcurrentLinkedQueue<Packet> windowLinkedList= new ConcurrentLinkedQueue<Packet>();
 	
 	private int windowStart = 0; // Always zero ???
 	
 	private int windowEnd = 1; // Starting with 1 -> incremented
 	
-	public LinkedList<Packet> getSendingWindow() {
+	public ConcurrentLinkedQueue<Packet> getSendingWindow() {
 		
 		if(windowLinkedList.size() == (windowEnd-windowStart)){             // the window is full
 			return windowLinkedList;
@@ -31,7 +31,7 @@ public class MyQueue {
 			}
 			return windowLinkedList;
 		} else {                                                      // window is bigger than expected -- shrink window and send the stuff ( packets might be lost)          
-			LinkedList<Packet> shrinkedList= new LinkedList<Packet>();
+			ConcurrentLinkedQueue<Packet> shrinkedList= new ConcurrentLinkedQueue<Packet>();
 			int count = 0;
 			for (Packet element : packetsLinkedList){
 				if(count<(windowEnd-windowStart)){
@@ -53,15 +53,15 @@ public class MyQueue {
 	private boolean removeFromQueue(Packet packet){
 		if(IoTPSServerStarter.isCongestionControlSupported){
 			if(windowLinkedList.contains(packet)){
-				windowLinkedList.remove(windowLinkedList.indexOf(packet));
+				windowLinkedList.remove(packet);
 				return true;
 			} else {
-				// duplicate acknowledgement
+				// duplicate acknowledgment
 				return false;
 			}
 		} else {
 			if(packetsLinkedList.contains(packet)){
-				packetsLinkedList.remove(packetsLinkedList.indexOf(packet));
+				packetsLinkedList.remove(packet);
 				return true;
 			} else {
 				return false;
@@ -104,10 +104,17 @@ public class MyQueue {
 	}
 	
 	public void halveCwnd(){
-		for(int i=windowEnd; i>(windowEnd/2); i--){
-			packetsLinkedList.addFirst(windowLinkedList.get(i)); // Moving elements from windowList to myLinkedList on halving the congestion Window
-			windowLinkedList.remove(i);
+		Packet[] temp = windowLinkedList.toArray(new Packet[0]);
+		ConcurrentLinkedQueue<Packet> newList = new ConcurrentLinkedQueue<Packet>();
+		for (int i = (windowEnd/2); i < windowEnd; i++) {
+			newList.offer(temp[i]);
+			windowLinkedList.remove(temp[i]);
 		}
+		for (Packet p : packetsLinkedList) {
+			newList.offer(p);
+		}
+		packetsLinkedList = newList;
+		
 		if(windowEnd>2){
 			windowEnd = windowEnd/2;
 		} else {
@@ -117,10 +124,12 @@ public class MyQueue {
 	}
 	
 	public void setMinimumCwnd(){
-		for(int i=windowEnd; i > 1; i--){
-			packetsLinkedList.addFirst(windowLinkedList.get(i)); // Moving elements from windowList to myLinkedList on making the congestion Window 1
-			windowLinkedList.remove(i);
+		ConcurrentLinkedQueue<Packet> newList = new ConcurrentLinkedQueue<Packet>();
+		for (Packet p : windowLinkedList) {
+			newList.offer(p);
+			windowLinkedList.remove(p);
 		}
+		packetsLinkedList = newList;
 		windowEnd = 1;
 	}
 	
@@ -132,7 +141,7 @@ public class MyQueue {
 		return windowEnd;
 	}
 
-	public LinkedList<Packet> getPacketsToSend() {
+	public ConcurrentLinkedQueue<Packet> getPacketsToSend() {
 		return packetsLinkedList;
 	}
 

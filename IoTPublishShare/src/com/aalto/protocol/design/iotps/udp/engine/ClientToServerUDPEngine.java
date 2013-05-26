@@ -91,16 +91,21 @@ public class ClientToServerUDPEngine {
 
 				if(receivedSeqNum > 0) { // Valid update message
 
-					long currentSeqNum = IoTPSClientStarter.subscriptionIdSeqNumMap.get(""+receivedSubscriptionNum);
-					if( currentSeqNum >= 0L ) {
+					if(IoTPSClientStarter.subscriptionIdSeqNumMap.contains(""+receivedSubscriptionNum)){ // subscribed
 						System.out.println(" Update recieved for a valid subscription");
-						if(!(receivedSeqNum == currentSeqNum+1)) { 
-							System.out.println(" Duplicate update received - Sending ACK for latest update ");
-							responseSeqNum =currentSeqNum;
-						} else {
-							System.out.println(" Sequence number received is in order ");
+						long currentSeqNum = IoTPSClientStarter.subscriptionIdSeqNumMap.get(""+receivedSubscriptionNum);
+						if(currentSeqNum == 0L) { // Might be first update
+							currentSeqNum = receivedSeqNum;
 							responseSeqNum = receivedSeqNum;
+							
+						} else if (currentSeqNum < receivedSeqNum) { // In order update
+							responseSeqNum = receivedSeqNum;
+							
+						} else if (currentSeqNum > receivedSeqNum) { // Duplicate
+							responseSeqNum = currentSeqNum; 
+							
 						}
+						IoTPSClientStarter.subscriptionIdSeqNumMap.put(""+receivedSubscriptionNum, responseSeqNum);
 						
 						try {
 							sendAcknowledgement(receivedSubscriptionNum,responseSeqNum);
@@ -109,15 +114,16 @@ public class ClientToServerUDPEngine {
 						} catch (Exception e) {
 							System.err.println("Sending ACKNOWLEDEMENT failed for sequence number: "+receivedSeqNum);
 						}
-
-					} else {
-
+						
+					} else { // Do something else
 						System.err.println(" Update recieved for a in-valid subscription - Unsubscription will be triggered");
 						sendUnsubscriptionMessage(receivedSubscriptionNum,responseSeqNum);
 					}
+					
 				} else {
 					System.err.println("Received invalid values for sequence number: "+receivedSeqNum+" Subscription Id:"+receivedSubscriptionNum);
 				}
+				
 			} else if (receivedMsg.contains("\""+Constants.RESULT+"\"")) { 
 				System.out.println("Received response for the find sensors request");
 				List<String> sensorNameList = findAvailableSensorsFromResult(receivedMsg);

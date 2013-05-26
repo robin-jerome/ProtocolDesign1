@@ -27,8 +27,15 @@ public class ServerToSensorUDPEngine {
 	        System.out.println(udpPacket.getAddress().getHostName() + ": "
 	            + receivedMsg);
 	        udpPacket.setLength(buffer.length);
-			IoTPSSensorUpdateObject sensorUpdateObject = SensorDataParser.generateSensorObject(receivedMsg);
-			UpdateEngine.update(sensorUpdateObject);
+	        try { 
+	        	
+	        	IoTPSSensorUpdateObject sensorUpdateObject = SensorDataParser.generateSensorObject(receivedMsg);
+				UpdateEngine.update(sensorUpdateObject);
+	        } catch (Exception e) {
+	        	System.err.println("Exception while parsing sensor data");
+	        	e.printStackTrace();
+	        }
+			
 		}
 	}
 	

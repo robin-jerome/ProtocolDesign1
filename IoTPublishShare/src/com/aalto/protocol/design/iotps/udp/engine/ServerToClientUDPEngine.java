@@ -117,11 +117,11 @@ public class ServerToClientUDPEngine {
 	}
 
 	public static void sendToClient(String ip, int port, JSON_Object o) throws Exception {
-			
-		
-		
-String action = o.GetValue(Constants.ACTION);
-		
+
+		System.out.println(" -----------"+o.toJSONString());
+
+		String action = o.GetValue(Constants.ACTION);
+
 		if (action.equalsIgnoreCase(Constants.UPDATE)) {
 			// ------ Log outgoing data to file ---------
 			String filename = "client_" + ip + "_" + port + ".log";
@@ -134,14 +134,14 @@ String action = o.GetValue(Constants.ACTION);
 			} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 			// ------------------------------------------
 		}
-		
-		  byte[] messageInBytes = o.toJSONString().getBytes();
-	      InetAddress address = InetAddress.getByName(ip);
-	      DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
-	      DatagramSocket dsocket = new DatagramSocket();
-	      dsocket.send(packet);
-	      dsocket.close();
-		
+
+		byte[] messageInBytes = o.toJSONString().getBytes();
+		InetAddress address = InetAddress.getByName(ip);
+		DatagramPacket packet = new DatagramPacket(messageInBytes, messageInBytes.length, address, port);
+		DatagramSocket dsocket = new DatagramSocket();
+		dsocket.send(packet);
+		dsocket.close();
+
 	}
 	
 	public static void sendErrorAcknowledgement (IoTPSSubscribeObject subObj, int reason) {

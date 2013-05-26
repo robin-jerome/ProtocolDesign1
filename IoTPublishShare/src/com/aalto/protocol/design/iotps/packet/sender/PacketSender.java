@@ -1,6 +1,7 @@
 package com.aalto.protocol.design.iotps.packet.sender;
 
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.aalto.protocol.design.datastructure.MyQueue;
 import com.aalto.protocol.design.datastructure.Packet;
@@ -71,7 +72,7 @@ public class PacketSender {
 			        	
 			        	if(null != myQueue){ // Only non-null Queue is processed
 			        		
-			        		LinkedList<Packet> packetList = null;
+			        		ConcurrentLinkedQueue<Packet> packetList = null;
 			        		
 			        		if(IoTPSServerStarter.isCongestionControlSupported) {
 			        			packetList = myQueue.getSendingWindow();

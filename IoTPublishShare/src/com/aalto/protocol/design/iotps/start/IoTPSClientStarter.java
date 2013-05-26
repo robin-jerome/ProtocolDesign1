@@ -3,9 +3,7 @@ package com.aalto.protocol.design.iotps.start;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.aalto.protocol.design.iotps.json.engine.JSON_Object;
 import com.aalto.protocol.design.iotps.udp.engine.ClientToServerUDPEngine;
@@ -24,9 +22,9 @@ public class IoTPSClientStarter {
 
 	private static int serverPort;
 	
-	public static HashMap<String,Long> subscriptionIdSeqNumMap = new HashMap<String,Long>();
+	public static ConcurrentHashMap<String,Long> subscriptionIdSeqNumMap = new ConcurrentHashMap<String,Long>();
 	
-	private static HashMap<String,String> subscriptionIdDeviceIdMap = new HashMap<String,String>();
+	private static ConcurrentHashMap<String,String> subscriptionIdDeviceIdMap = new ConcurrentHashMap<String,String>();
 	
 	public static int getVersion() {
 		return version;

@@ -40,12 +40,20 @@ public class UpdateEngine {
 		if(null!=sensorObjList && sensorObjList.size()>0) {
 			System.out.println("Sensor details already present in the server - Values will be updated");
 			String updateSensorQuery = "update sensor_table set latest_seq_num = ?, latest_json_data = ? where device_id = ?";
+			if(sensorUpdate.getDataSize() == -1) {
+				updateSensorQuery = "update sensor_table set latest_json_data = ? where device_id = ?";
+			} 
 			SQLiteDBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
 			System.out.println("Sensor Value updation Successful");
 		} else {
 			System.out.println("Sensor details no present in the server - Values will be inserted");
 			String insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
-			SQLiteDBEngine.executeUpdate(insertSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
+			
+			if(sensorUpdate.getDataSize() == -1) {
+				insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
+			}
+			
+			SQLiteDBEngine.executeUpdate(insertSensorQuery, 0L, sensorUpdate.getData(), sensorUpdate.getDevId());
 			System.out.println("Sensor Value insertion Successful");
 		}
 		

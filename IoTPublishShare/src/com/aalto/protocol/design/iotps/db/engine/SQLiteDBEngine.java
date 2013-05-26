@@ -193,9 +193,15 @@ public class SQLiteDBEngine {
 			if(null != connection)
 			{
 				ps = connection.prepareStatement(updateQuery);
-				ps.setLong(1, latestSeqNum);
-				ps.setString(2, jsonData);
-				ps.setString(3, deviceId);
+				if(latestSeqNum == -1) {
+					ps.setString(1, jsonData);
+					ps.setString(2, deviceId);
+				} else {
+					ps.setLong(1, latestSeqNum);
+					ps.setString(2, jsonData);
+					ps.setString(3, deviceId);
+				}
+				
 				ps.executeUpdate();
 			}
 	 

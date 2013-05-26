@@ -4,7 +4,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;
 
 public class SensorDataParser {
 
-	private static  String extractFieldWithName(String fieldName, String revdMsg){//extract data field of every strF 
+	private static String extractFieldWithName(String fieldName, String revdMsg){//extract data field of every strF 
 		fieldName="'"+fieldName+"': '";
 		
 		int id_index0 = revdMsg.indexOf(fieldName);
@@ -15,7 +15,7 @@ public class SensorDataParser {
 			if(id_index1!=-1)
 				return(revdMsg.substring(id_index0, id_index1));
 		}
-		return null; //if fieldName was not found or its data field does not end with ' 
+		return ""+-1; //if fieldName was not found or its data field does not end with ' 
 	}
 
 
@@ -47,18 +47,19 @@ public class SensorDataParser {
 
 	private static  Long extractTimeStamp(String revdMsg) {//returns ts field or -1 for errors
 		String timeStampString = (extractFieldWithName("ts",revdMsg));
-		if(timeStampString == null){
-			return null;
+		if(timeStampString == ""+-1){
+			return -1L;
 		} else {
 			try{
 				return(Long.parseLong(extractFieldWithName("ts",revdMsg).substring(0, extractFieldWithName("ts",revdMsg).indexOf("."))));	
 			} catch (NumberFormatException ex ){
-				return null;
+				return -1L;
 			}
 		}
 	}
 
 	private static  Integer extractDataSize(String revdMsg) {//returns data_size field or -1 for errors
+		System.out.println(revdMsg);
 		String dataSizeString = extractFieldWithName("data_size",revdMsg);
 		if(dataSizeString == null) {
 			return null;
@@ -84,17 +85,29 @@ public class SensorDataParser {
 			return null;
 		else tempObject.setData(extractSensorData(rcvMsg));
 
-		if (extractDataSize(rcvMsg)==-1)
-			return null;
-		else tempObject.setDataSize(extractDataSize(rcvMsg));
+		if (extractDataSize(rcvMsg)==-1) {
+			if(tempObject.getDevId().startsWith("camera")) { // Handling Camera data segmentation
+				tempObject.setDataSize(-1);
+			} else {
+				return null;
+			}
+		} else tempObject.setDataSize(extractDataSize(rcvMsg));
 
-		if (extractSequenceNumber(rcvMsg)==-1)
-			return null;
-		else tempObject.setSeqNo(extractSequenceNumber(rcvMsg));
+		if (extractSequenceNumber(rcvMsg)==-1) {
+			if(tempObject.getDevId().startsWith("camera")) { // Handling Camera data segmentation
+				tempObject.setSeqNo(-1);
+			} else {
+				return null;
+			}
+		} else tempObject.setSeqNo(extractSequenceNumber(rcvMsg));
 
-		if (extractTimeStamp(rcvMsg)==-1)
-			return null;
-		else tempObject.setTimeStamp(extractTimeStamp(rcvMsg));
+		if (extractTimeStamp(rcvMsg)==-1) {
+			if(tempObject.getDevId().startsWith("camera")) { // Handling Camera data segmentation
+				tempObject.setTimeStamp(-1);
+			} else {
+				return null;
+			}
+		}  else tempObject.setTimeStamp(extractTimeStamp(rcvMsg));
 
 		String deviceNameString=extractDeviceId(rcvMsg);//set devNo in tempObject
 		int id_index0 = deviceNameString.indexOf("_");
