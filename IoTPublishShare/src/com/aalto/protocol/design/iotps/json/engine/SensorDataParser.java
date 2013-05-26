@@ -26,7 +26,6 @@ public class SensorDataParser {
 
 	private static  String extractSensorData(String revdMsg){//returns sensor_data field or "parsingError"
 		return extractFieldWithName("sensor_data", revdMsg);
-		
 	}
 
 
@@ -103,7 +102,7 @@ public class SensorDataParser {
 
 		if (extractTimeStamp(rcvMsg)==-1) {
 			if(tempObject.getDevId().startsWith("camera")) { // Handling Camera data segmentation
-				tempObject.setTimeStamp(-1);
+				tempObject.setTimeStamp(0);
 			} else {
 				return null;
 			}

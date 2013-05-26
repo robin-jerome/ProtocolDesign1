@@ -45,10 +45,11 @@ public class JSON_Object {
 	
 	public String toJSONString() {
 		String s = "{";
+		char strC = '\'';
 		for (Pair pair : this.Items) {
-			s += "\"" + pair.Key.trim() + "\":";
+			s += strC + pair.Key.trim() + strC + ":";
 			if (pair.type == Pair.data_type.STRING)
-				s += "\"" + pair.Value.trim() + "\",";
+				s += strC + pair.Value.trim() + strC + ",";
 			else if (pair.type == Pair.data_type.OBJECT) {
 				JSON_Object o = new JSON_Object(pair.Value.trim());
 				s += o.toString() + ",";

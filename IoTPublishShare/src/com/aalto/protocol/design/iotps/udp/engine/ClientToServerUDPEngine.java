@@ -22,7 +22,7 @@ public class ClientToServerUDPEngine {
 
 	private static DatagramSocket dsocket = null;
 
-	private static final int BUFFER_LENGTH = 2048;
+	private static final int BUFFER_LENGTH = 4096;
 	
 	public static HashMap<String , Long> unacknowledgedSubscibes = new HashMap<String, Long>();
 
@@ -79,7 +79,7 @@ public class ClientToServerUDPEngine {
 				String filename = "client.log";
 				try {
 					BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-					out.write("Receive_ts \t" + receivedMsg);
+					out.write("Receive_"+System.currentTimeMillis()+ "\t" + receivedMsg);
 					out.close();
 				} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 				// ------------------------------------------

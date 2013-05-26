@@ -22,7 +22,7 @@ public class ServerToClientUDPEngine {
 	
 	private static DatagramSocket dsocket = null;
 	
-	private static final int BUFFER_LENGTH = 2048;
+	private static final int BUFFER_LENGTH = 4096;
 	
 	public static void listenForClientMessages(int port) throws Exception {
 		
@@ -129,7 +129,7 @@ public class ServerToClientUDPEngine {
 			if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
 			try {
 				BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-				out.write("send_ts \t" + logData);
+				out.write("send_"+System.currentTimeMillis()+ "\t" + logData +"\n");
 				out.close();
 			} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 			// ------------------------------------------

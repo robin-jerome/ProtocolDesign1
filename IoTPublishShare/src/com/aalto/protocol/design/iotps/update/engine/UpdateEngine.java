@@ -12,6 +12,7 @@ import com.aalto.protocol.design.iotps.objects.IoTPSSensorObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSensorUpdateObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSSubscribeObject;
 import com.aalto.protocol.design.iotps.objects.IoTPSUpdateObject;
+import com.aalto.protocol.design.iotps.packet.sender.PacketSender;
 import com.aalto.protocol.design.iotps.packet.sender.PacketSenderRepo;
 import com.aalto.protocol.design.iotps.utils.IoTUtils;
 
@@ -24,7 +25,7 @@ public class UpdateEngine {
 		if (sensorUpdate.getDevId().contains("camera")) logData = Integer.toString(logData.length());
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-			out.write("receive_ts \t" + logData);
+			out.write("receive_"+System.currentTimeMillis()+" \t" + logData+"\n");
 			out.close();
 		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 		// ---------------------------------------------------
@@ -49,7 +50,7 @@ public class UpdateEngine {
 			System.out.println("Sensor details no present in the server - Values will be inserted");
 			String insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
 			
-			if(sensorUpdate.getDataSize() == -1) {
+			if(sensorUpdate.getDataSize() == -1L) {
 				insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
 			}
 			
@@ -98,7 +99,16 @@ public class UpdateEngine {
 		packet.setJsonObject(update.getJSONObject());
 		
 		String queueName = IoTUtils.getMyClientFacingIp()+":"+IoTUtils.getMyClientFacingPort()+"-"+update.getClientIp()+":"+update.getClientPort();
-		PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().pushToQueue(packet);
+		if(PacketSenderRepo.packetSenderMap.containsKey(queueName)){
+			PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().pushToQueue(packet);
+		} else {
+			System.out.println("Queue Name to be added: "+queueName);
+			PacketSender ps = new PacketSender(IoTUtils.getMyClientFacingIp(), update.getClientIp(), IoTUtils.getMyClientFacingPort(), update.getClientPort());
+			PacketSenderRepo.packetSenderMap.put(queueName, ps);
+			PacketSenderRepo.packetSenderMap.get(queueName).startProcess();
+			System.out.println("Created and Started the Queue: "+queueName);
+			PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().pushToQueue(packet);
+		}
 	}
 	
 	public static void sendFirstUpdate(IoTPSSubscribeObject subs) {
