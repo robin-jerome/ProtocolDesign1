@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # iot-client.sh: Shell script to start iot clients
 clear
 echo "##################################################################################"
@@ -14,7 +14,7 @@ usage(){
 }
 
 curr_time=`date +%s`
-mkdir ./logs 1>/dev/null 2>/dev/null
+mkdir ./logs 1>./null 2>./null
 
 # You need atleast arguments to the shell script
 if [ $# -lt 4 ]

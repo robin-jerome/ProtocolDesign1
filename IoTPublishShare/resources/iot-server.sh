@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # iot-server.sh: Shell script to start iot server
 clear
 echo "##################################################################################"
@@ -13,7 +13,7 @@ usage(){
 }
 curr_time=`date +%s`
 dbUrl=jdbc:sqlite:D:\\Software\\sqlite-shell-win32-x86-3071700\\iotps
-mkdir ./logs 1>/dev/null 2>/dev/null
+mkdir ./logs 1>./null 2>./null
 
 # You need exactly 3 arguments to the shell script
 if [ $# -ne 3 ]
