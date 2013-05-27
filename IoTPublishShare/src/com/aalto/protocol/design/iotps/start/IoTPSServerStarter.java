@@ -48,7 +48,7 @@ public class IoTPSServerStarter {
 			System.exit(-1);
 		}
 		
-		System.out.println(args[0]);
+		
 		publishPort = Integer.parseInt(args[0]);
 		subscribePort = Integer.parseInt(args[1]);
 		updatePort = Integer.parseInt(args[2]);

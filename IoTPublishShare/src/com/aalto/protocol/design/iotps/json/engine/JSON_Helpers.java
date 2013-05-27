@@ -9,11 +9,11 @@ public class JSON_Helpers {
 		//		"\\o"	-- false ('\' is escaped and thus does not escape 'o')
 		//		"\\\o"	-- true
 	public static boolean IsEscaped(String str, int index) {
-		if (index > 0 && index < str.length() && str.charAt(index-1) == '\\') {
-			if (IsEscaped(str, index-1) == false) {
-				return true;
-			}
-		}
+//		if (index > 0 && index < str.length() && str.charAt(index-1) == '\\') {
+//			if (IsEscaped(str, index-1) == false) {
+//				return true;
+//			}
+//		}
 		return false;
 	}
 	

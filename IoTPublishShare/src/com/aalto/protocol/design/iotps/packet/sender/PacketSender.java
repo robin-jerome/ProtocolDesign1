@@ -7,6 +7,7 @@ import com.aalto.protocol.design.datastructure.MyQueue;
 import com.aalto.protocol.design.datastructure.Packet;
 import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
 import com.aalto.protocol.design.iotps.udp.engine.ServerToClientUDPEngine;
+import com.aalto.protocol.design.iotps.utils.Constants;
 
 public class PacketSender {
 
@@ -24,7 +25,11 @@ public class PacketSender {
 	
 	private Thread packetSenderThread = null; 
 	
-	private boolean threadStopped = false;
+	private Thread timeoutCheckerThread = null; 
+	
+	private boolean packetSenderThreadStopped = false;
+	
+	private boolean timeoutCheckerThreadStopped = false;
 	
 	public String getServerIp() {
 		return serverIp;
@@ -68,7 +73,7 @@ public class PacketSender {
 			packetSenderThread = new Thread(new Runnable() {
 			    public void run() {
 			    	
-			        while(!threadStopped){
+			        while(!packetSenderThreadStopped){
 			        	
 			        	if(null != myQueue){ // Only non-null Queue is processed
 			        		
@@ -79,12 +84,14 @@ public class PacketSender {
 			        		} else {
 			        			packetList = myQueue.getPacketsToSend();
 			        		}
-			        				
+			        		
 			        		for( Packet packet: packetList ) {
 				        		if(!packet.isSent()){
 				        			try {
 										ServerToClientUDPEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject());
-										packet.setSent(true); // setting that the packet has been sent
+										myQueue.modifyTimeStampAndSent(packet.getSeqNum(),true,System.currentTimeMillis());
+										myQueue.displayWindowSize();
+						        		System.out.println("Number of Packets pending to be send::"+packetList.size());
 									} catch (Exception e) {
 										System.err.println("Packet Sending Failed:"+e.getMessage());
 										e.printStackTrace();
@@ -104,13 +111,55 @@ public class PacketSender {
 			    }
 			});
 			packetSenderThread.start();
+			timeoutCheckerThread = new Thread(new Runnable() {
+			    public void run() {
+			    	
+			        while(!timeoutCheckerThreadStopped){
+			        	
+			        	if(null != myQueue){ // Only non-null Queue is processed
+			        		
+			        		ConcurrentLinkedQueue<Packet> packetList = null;
+			        		
+			        		if(IoTPSServerStarter.isCongestionControlSupported) {
+			        			packetList = myQueue.getSendingWindow();
+			        		} else {
+			        			packetList = myQueue.getPacketsToSend();
+			        		}
+			        				
+			        		for( Packet packet: packetList ) {
+				        		if(packet.isSent() && (System.currentTimeMillis()-packet.getTimeStamp() > Constants.WAIT_TIMEOUT)){
+				        			myQueue.removePacketWithSeqNumFromQueue(packet.getSeqNum());
+				        			if(IoTPSServerStarter.isCongestionControlSupported) {
+					        			// halve congestion window
+				        				myQueue.halveCwnd();
+					        		} else {
+					        			// Do nothing
+					        		}	
+				        		}
+				        	}	
+				        	
+			        	}  else { // Stop Processing method called
+			        		// Kill the thread if it is interrupted
+			        		if (timeoutCheckerThread.isInterrupted()) {
+			        			timeoutCheckerThread.stop();
+							}
+			        	}
+			        	
+			        }
+			        
+			    }
+			});
+			timeoutCheckerThread.start();
+	
 		}
 	}
 	
 	public void stopProcess(){
 		// Setting the queue to null would stop processing
-		threadStopped = true;
+		packetSenderThreadStopped = true;
 		packetSenderThread.interrupt();
+		timeoutCheckerThreadStopped = true;
+		timeoutCheckerThread.interrupt();
 		myQueue = null;
 	}
 }

@@ -20,6 +20,8 @@ public class Constants {
 
 	public static final int ERROR_VERSION_MISMATCH = 420;
 	
+	public static final long WAIT_TIMEOUT = 5000L;
+	
 
 	
 }

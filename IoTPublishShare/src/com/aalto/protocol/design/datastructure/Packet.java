@@ -8,6 +8,8 @@ public class Packet {
 	
 	private boolean sent = false;
 	
+	private long timeStamp;
+	
 	private JSON_Object jsonObject = new JSON_Object();
 
 	public long getSeqNum() {
@@ -26,10 +28,11 @@ public class Packet {
 		this.jsonObject = jsonObject;
 	}
 	
+	
 	@Override
     public boolean equals(Object obj) {
 		Packet packet = (Packet) obj;
-		return this.seqNum == packet.seqNum ;
+		return this.seqNum == packet.seqNum && this.sent == packet.sent;
 	}
 
 	public boolean isSent() {
@@ -44,5 +47,13 @@ public class Packet {
 	public String toString() {
 		
 		return "SN "+seqNum+"  "+sent+ "";
+	}
+
+	public long getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(long timeStamp) {
+		this.timeStamp = timeStamp;
 	}
 }

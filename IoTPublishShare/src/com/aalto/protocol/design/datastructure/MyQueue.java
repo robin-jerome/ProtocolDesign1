@@ -14,6 +14,15 @@ public class MyQueue {
 	
 	private int windowEnd = 1; // Starting with 1 -> incremented
 	
+	public void displayWindowSize() {
+		if(IoTPSServerStarter.isCongestionControlSupported) {
+			System.out.println("Current window Size::"+ (windowEnd-windowStart));
+		} else {
+			System.out.println("Current window Size::"+ packetsLinkedList.size());
+		}
+		
+	}
+	
 	public ConcurrentLinkedQueue<Packet> getSendingWindow() {
 		
 		if(windowLinkedList.size() == (windowEnd-windowStart)){             // the window is full
@@ -24,7 +33,13 @@ public class MyQueue {
 				if(count > 0){
 					windowLinkedList.add(element);
 					count--;
-					packetsLinkedList.remove();
+					if(!packetsLinkedList.isEmpty()) {
+						try {
+						packetsLinkedList.remove();
+						} catch (Exception e) {
+							continue;
+						}
+					}
 				} else {
 					break;
 				}
@@ -74,17 +89,15 @@ public class MyQueue {
 		boolean removed = false;
 		if(IoTPSServerStarter.isCongestionControlSupported){
 			for (Packet packet : windowLinkedList){
-				if(packet.isSent() && packet.getSeqNum()==seqNum){
+				if(packet.getSeqNum()==seqNum){
 					removed = removeFromQueue(packet);
 					break;
 				}
 			}
 			return removed;
 		} else {
-			System.out.println("Size of list::"+packetsLinkedList.size());
 			for (Packet packet : packetsLinkedList){
-				System.out.println("=============="+packet);
-				if(packet.isSent() && packet.getSeqNum()==seqNum){
+				if(packet.getSeqNum()==seqNum){
 					removed = removeFromQueue(packet);
 					break;
 				}
@@ -106,9 +119,9 @@ public class MyQueue {
 	}
 	
 	public void halveCwnd(){
-		Packet[] temp = windowLinkedList.toArray(new Packet[0]);
+		Packet[] temp =  windowLinkedList.toArray(new Packet[0]);
 		ConcurrentLinkedQueue<Packet> newList = new ConcurrentLinkedQueue<Packet>();
-		for (int i = (windowEnd/2); i < windowEnd; i++) {
+		for (int i = (windowEnd/2); (windowEnd> 0 &&i < windowEnd && temp.length >0); i++) {
 			newList.offer(temp[i]);
 			windowLinkedList.remove(temp[i]);
 		}
@@ -145,6 +158,22 @@ public class MyQueue {
 
 	public ConcurrentLinkedQueue<Packet> getPacketsToSend() {
 		return packetsLinkedList;
+	}
+
+	public void modifyTimeStampAndSent(long seqNum, boolean isSent, long currentTimeMillis) {
+		// Remove it and add it back ??
+		
+		removePacketWithSeqNumFromQueue(seqNum);
+		Packet packet = new Packet();
+		packet.setSeqNum(seqNum);
+		packet.setSent(isSent);
+		packet.setTimeStamp(currentTimeMillis);
+		
+		if(IoTPSServerStarter.isCongestionControlSupported){
+			windowLinkedList.add(packet);
+		} else {
+			packetsLinkedList.add(packet);
+		}
 	}
 
 	

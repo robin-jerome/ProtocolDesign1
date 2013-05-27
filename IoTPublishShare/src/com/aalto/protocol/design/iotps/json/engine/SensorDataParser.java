@@ -58,7 +58,7 @@ public class SensorDataParser {
 	}
 
 	private static  Integer extractDataSize(String revdMsg) {//returns data_size field or -1 for errors
-		System.out.println(revdMsg);
+		
 		String dataSizeString = extractFieldWithName("data_size",revdMsg);
 		if(dataSizeString == null) {
 			return null;

@@ -39,13 +39,13 @@ public class UpdateEngine {
 		String sensorSelectQuery = "select * from sensor_table where device_id = '" + sensorUpdate.getDevId() + "'";
 		List<IoTPSObject> sensorObjList = SQLiteDBEngine.executeQuery(sensorSelectQuery, SQLiteDBEngine.SENSOR_OBJECT);
 		if(null!=sensorObjList && sensorObjList.size()>0) {
-			System.out.println("Sensor details already present in the server - Values will be updated");
+//			System.out.println("Sensor update:"+sensorUpdate.getDevId()+"SeqNum"+sensorUpdate.getSeqNo());
 			String updateSensorQuery = "update sensor_table set latest_seq_num = ?, latest_json_data = ? where device_id = ?";
 			if(sensorUpdate.getDataSize() == -1) {
 				updateSensorQuery = "update sensor_table set latest_json_data = ? where device_id = ?";
 			} 
 			SQLiteDBEngine.executeUpdate(updateSensorQuery, sensorUpdate.getSeqNo(), sensorUpdate.getData(), sensorUpdate.getDevId());
-			System.out.println("Sensor Value updation Successful");
+//			System.out.println("Sensor Value updation Successful");
 		} else {
 			System.out.println("Sensor details no present in the server - Values will be inserted");
 			String insertSensorQuery = "insert into sensor_table (latest_seq_num, latest_json_data, device_id) values (?,?,?)";
@@ -55,7 +55,7 @@ public class UpdateEngine {
 			}
 			
 			SQLiteDBEngine.executeUpdate(insertSensorQuery, 0L, sensorUpdate.getData(), sensorUpdate.getDevId());
-			System.out.println("Sensor Value insertion Successful");
+//			System.out.println("Sensor Value insertion Successful");
 		}
 		
 		// logic to Update the new Sequence number in the client table for every update received from sensor

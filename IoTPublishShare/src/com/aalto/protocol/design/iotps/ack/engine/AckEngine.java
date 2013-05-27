@@ -10,7 +10,6 @@ public class AckEngine {
 
 	public static IoTPSAckObject getAckObjectFromUDPMessage(JSON_Object o) throws Exception {
 		
-		System.out.println("ACK JSON"+o.toJSONString());
 		IoTPSAckObject ack = new IoTPSAckObject();
 		ack.setSeqNo(o.GetNumberValue("seq_no"));
 		ack.setSubSeqNo(o.GetNumberValue("sub_seq_no"));
@@ -18,6 +17,7 @@ public class AckEngine {
 		// TODO Schema or datagram??
 		ack.setFromIp(o.GetValue("client_ip"));
 		ack.setFromPort(Integer.valueOf(o.GetValue("client_port")));
+		
 		System.out.println("Ack object created from receivedMessage::"+ack);
 		
 		return ack;
@@ -48,7 +48,6 @@ public class AckEngine {
 					}
 
 				} else {
-
 					PacketSenderRepo.packetSenderMap.get(queueName).getMyQueue().halveCwnd();
 					System.out.println("Halving the CWND as the Acknowledgement is duplicate");
 				}

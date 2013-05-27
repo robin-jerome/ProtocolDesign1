@@ -46,7 +46,7 @@ public class ClientToServerUDPEngine {
 					+ receivedMsg);
 			udpPacket.setLength(buffer.length);
 
-			if(receivedMsg.contains("\""+Constants.ACKNOWLEDGEMENT+"\"")) { 
+			if(receivedMsg.contains("'"+Constants.ACKNOWLEDGEMENT+"'")) { 
 				/*
 				 *  ACKNOWLEDGEMENT packet received from the server
 				 *  ------------------------------------
@@ -67,7 +67,7 @@ public class ClientToServerUDPEngine {
 					sendUnsubscriptionMessage(receivedSubscriptionNum, 0L);
 				}
 
-			} else if (receivedMsg.contains("\""+Constants.UPDATE+"\"")) { 
+			} else if (receivedMsg.contains("'"+Constants.UPDATE+"'")) { 
 
 				/*
 				 *  Data packet received from the server
@@ -85,10 +85,19 @@ public class ClientToServerUDPEngine {
 				// ------------------------------------------
 
 				JSON_Object dataJSON = new JSON_Object(receivedMsg);
-				long receivedSeqNum = dataJSON.GetNumberValue("seq_no");
-				long receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
-				long responseSeqNum = receivedSeqNum;
-
+				long receivedSeqNum = 0L;
+				long receivedSubscriptionNum = 0L;
+				long responseSeqNum = 0L;
+				
+				try {
+					receivedSeqNum = dataJSON.GetNumberValue("seq_no");
+					receivedSubscriptionNum = dataJSON.GetNumberValue("sub_seq_no");
+					responseSeqNum = receivedSeqNum;
+				} catch (Exception e) {
+					System.out.println("Check this error --- Parsing failed");
+					e.printStackTrace();
+				}
+				
 				if(receivedSeqNum > 0) { // Valid update message
 
 					if(IoTPSClientStarter.subscriptionIdSeqNumMap.containsKey(""+receivedSubscriptionNum)){ // subscribed
@@ -124,7 +133,7 @@ public class ClientToServerUDPEngine {
 					System.err.println("Received invalid values for sequence number: "+receivedSeqNum+" Subscription Id:"+receivedSubscriptionNum);
 				}
 				
-			} else if (receivedMsg.contains("\""+Constants.RESULT+"\"")) { 
+			} else if (receivedMsg.contains("'"+Constants.RESULT+"'")) { 
 				System.out.println("Received response for the find sensors request");
 				List<String> sensorNameList = findAvailableSensorsFromResult(receivedMsg);
 				if(sensorNameList.size()==0) {
