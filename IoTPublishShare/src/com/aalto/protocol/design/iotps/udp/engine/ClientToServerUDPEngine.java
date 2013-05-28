@@ -22,7 +22,7 @@ public class ClientToServerUDPEngine {
 
 	private static DatagramSocket dsocket = null;
 
-	private static final int BUFFER_LENGTH = 4096;
+	private static final int BUFFER_LENGTH = 66000;
 	
 	public static HashMap<String , Long> unacknowledgedSubscibes = new HashMap<String, Long>();
 

@@ -22,7 +22,7 @@ public class ServerToClientUDPEngine {
 	
 	private static DatagramSocket dsocket = null;
 	
-	private static final int BUFFER_LENGTH = 4096;
+	private static final int BUFFER_LENGTH = 66000;
 	
 	public static void listenForClientMessages(int port) throws Exception {
 		

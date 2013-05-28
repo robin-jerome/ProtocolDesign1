@@ -11,7 +11,7 @@ public class ServerToSensorUDPEngine {
 	
 	private static DatagramSocket dsocket = null;
 	
-	private static final int BUFFER_LENGTH = 4096;
+	private static final int BUFFER_LENGTH = 66000;
 	
 	public static void listenForSensorMessages(int port) throws Exception {
 		
@@ -24,7 +24,7 @@ public class ServerToSensorUDPEngine {
 		while(true) {
 			dsocket.receive(udpPacket);
 			String receivedMsg = new String(buffer, 0, udpPacket.getLength());
-//	        System.out.println(udpPacket.getAddress().getHostName() + ": "+ receivedMsg);
+	        System.out.println(udpPacket.getAddress().getHostName() + ": "+ receivedMsg);
 	        udpPacket.setLength(buffer.length);
 	        try { 
 	        	

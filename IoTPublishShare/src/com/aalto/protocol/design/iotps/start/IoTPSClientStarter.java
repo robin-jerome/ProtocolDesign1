@@ -16,7 +16,7 @@ public class IoTPSClientStarter {
 
 	private static String clientIP;
 
-	private static int port;
+	private static int clientPort;
 
 	private static String serverIP;
 
@@ -34,8 +34,8 @@ public class IoTPSClientStarter {
 		return clientIP;
 	}
 
-	public static int getPort() {
-		return port;
+	public static int getClientPort() {
+		return clientPort;
 	}
 
 	public static String getServerIP() {
@@ -47,7 +47,7 @@ public class IoTPSClientStarter {
 	}
 	
 	public static int getSelfPortListeningToServer() {
-		return 5063;
+		return clientPort;
 	}
 
 	public static String getSelfIPListeningToServer() {
@@ -83,11 +83,12 @@ public class IoTPSClientStarter {
 			
 			serverIP = args[0];
 			serverPort = Integer.parseInt(args[1]);
-			version = Integer.parseInt(args[2]);
+			clientPort = Integer.parseInt(args[2]);
+			version = Integer.parseInt(args[3]);
 			
 			System.out.println(serverIP+serverPort+version);
 			
-			for(int i=3; i<args.length; i++) {
+			for(int i=4; i<args.length; i++) {
 				subscriptionIdDeviceIdMap.put(args[i],"");
 			}
 
