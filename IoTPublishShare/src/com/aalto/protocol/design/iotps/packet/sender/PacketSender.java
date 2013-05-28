@@ -1,8 +1,6 @@
 package com.aalto.protocol.design.iotps.packet.sender;
 
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import com.aalto.protocol.design.datastructure.MyQueue;
 import com.aalto.protocol.design.datastructure.Packet;
 import com.aalto.protocol.design.iotps.start.IoTPSServerStarter;
@@ -80,24 +78,28 @@ public class PacketSender {
 			        		ConcurrentLinkedQueue<Packet> packetList = null;
 			        		
 			        		if(IoTPSServerStarter.isCongestionControlSupported) {
-			        			packetList = myQueue.getSendingWindow();
+			        			packetList = myQueue.getSendingWindowBasedOnCongestion();
 			        		} else {
 			        			packetList = myQueue.getPacketsToSend();
 			        		}
-			        		
+			        		int sentCount = 0;
 			        		for( Packet packet: packetList ) {
 				        		if(!packet.isSent()){
 				        			try {
 										ServerToClientUDPEngine.sendToClient(remoteIp, remotePort, packet.getJsonObject());
 										myQueue.modifyTimeStampAndSent(packet.getSeqNum(),true,System.currentTimeMillis());
 										myQueue.displayWindowSize();
-						        		System.out.println("Number of Packets pending to be send::"+packetList.size());
+										sentCount++;
+						        		
 									} catch (Exception e) {
 										System.err.println("Packet Sending Failed:"+e.getMessage());
 										e.printStackTrace();
 									}
 				        		}
 				        	}	
+			        		if(sentCount > 0) {
+			        			System.out.println("Number of packets sent to client:"+sentCount);
+			        		}
 				        	
 			        	}  else { // Stop Processing method called
 			        		// Kill the thread if it is interrupted
@@ -111,6 +113,7 @@ public class PacketSender {
 			    }
 			});
 			packetSenderThread.start();
+			
 			timeoutCheckerThread = new Thread(new Runnable() {
 			    public void run() {
 			    	
@@ -121,7 +124,7 @@ public class PacketSender {
 			        		ConcurrentLinkedQueue<Packet> packetList = null;
 			        		
 			        		if(IoTPSServerStarter.isCongestionControlSupported) {
-			        			packetList = myQueue.getSendingWindow();
+			        			packetList = myQueue.getWindowLinkedList();
 			        		} else {
 			        			packetList = myQueue.getPacketsToSend();
 			        		}

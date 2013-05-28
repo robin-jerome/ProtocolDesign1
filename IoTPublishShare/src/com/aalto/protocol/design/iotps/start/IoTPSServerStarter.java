@@ -97,5 +97,8 @@ public class IoTPSServerStarter {
 			}
 		});
 		sensorListenThread.start();
+		System.out.println("Starting server successfull");
 	}
+	
+	
 }
