@@ -19,13 +19,14 @@ import com.aalto.protocol.design.iotps.utils.IoTUtils;
 public class UpdateEngine {
 	
 	public static void update(IoTPSSensorUpdateObject sensorUpdate) {
+		
 		// -------- Log incoming sensor data -----------------
 		String filename = "server_" + sensorUpdate.getDevId() + ".log";
 		String logData = sensorUpdate.getData();
 		if (sensorUpdate.getDevId().contains("camera")) logData = Integer.toString(logData.length());
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-			out.write("receive_"+System.currentTimeMillis()+" \t" + logData+"\n");
+			out.write(System.currentTimeMillis()+"\t" + logData+"\n");
 			out.close();
 		} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 		// ---------------------------------------------------

@@ -69,22 +69,34 @@ public class ClientToServerUDPEngine {
 
 			} else if (receivedMsg.contains("'"+Constants.UPDATE+"'")) { 
 
+				JSON_Object dataJSON = new JSON_Object(receivedMsg);
+				
 				/*
 				 *  Data packet received from the server
 				 *  ------------------------------------
 				 *  1. Log data
 				 *  3. Wonder if there is something else to do
 				 */
-				// LOG
+				// ------ Log incoming data to file ---------
 				String filename = "client.log";
+				String logData = dataJSON.GetValue("sensor_data");
+				String deviceId = dataJSON.GetValue("dev_id");
+				if (deviceId.contains("camera")) {
+					String dataFilename = deviceId + ".data";
+					try {
+						BufferedWriter out = new BufferedWriter(new FileWriter(dataFilename, true));
+						out.write(System.currentTimeMillis()+ "\t" + logData);
+						out.close();
+					} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+					logData = logData.length() + "";
+				}
 				try {
 					BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-					out.write("Receive_"+System.currentTimeMillis()+ "\t" + receivedMsg);
+					out.write(System.currentTimeMillis()+ "\t" + logData);
 					out.close();
 				} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 				// ------------------------------------------
 
-				JSON_Object dataJSON = new JSON_Object(receivedMsg);
 				long receivedSeqNum = 0L;
 				long receivedSubscriptionNum = 0L;
 				long responseSeqNum = 0L;

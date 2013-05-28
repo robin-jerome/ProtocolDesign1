@@ -129,7 +129,7 @@ public class ServerToClientUDPEngine {
 			if (o.GetValue("dev_id").contains("camera")) logData = Integer.toString(logData.length());
 			try {
 				BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-				out.write("send_"+System.currentTimeMillis()+ "\t" + logData +"\n");
+				out.write(System.currentTimeMillis()+ "\t" + logData +"\n");
 				out.close();
 			} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 			// ------------------------------------------
