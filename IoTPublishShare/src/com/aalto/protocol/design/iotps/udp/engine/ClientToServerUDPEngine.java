@@ -85,15 +85,19 @@ public class ClientToServerUDPEngine {
 					String dataFilename = deviceId + ".data";
 					try {
 						BufferedWriter out = new BufferedWriter(new FileWriter(dataFilename, true));
-						out.write(System.currentTimeMillis()+ "\t" + logData);
+						out.write(System.currentTimeMillis()+ "\t" + logData+"\n");
 						out.close();
 					} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 					logData = logData.length() + "";
 				}
 				try {
-					BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-					out.write(System.currentTimeMillis()+ "\t" + logData);
-					out.close();
+					
+					if (!logData.contains("NO_MOTION")) {
+						BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+						out.write(logData);
+						out.close();
+					}
+					
 				} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 				// ------------------------------------------
 

@@ -151,9 +151,14 @@ public class MyQueue {
 		System.out.println("Initial window size "+(windowEnd-windowStart));
 		Packet[] temp =  windowLinkedList.toArray(new Packet[0]);
 		ConcurrentLinkedQueue<Packet> newList = new ConcurrentLinkedQueue<Packet>();
-		for (int i = (windowEnd/2); (windowEnd> 0 && i < windowEnd && temp.length > 0); i++) {
-			newList.offer(temp[i]);
-			windowLinkedList.remove(temp[i]);
+		for (int i = (windowLinkedList.size()/2), j = windowLinkedList.size(); i < j ; i++) {
+			if(i < temp.length && null != temp[i]) {
+				newList.offer(temp[i]);
+				windowLinkedList.remove(temp[i]);
+			} else {
+				System.out.println("Array Index out of bounds exception avoided");
+			}
+			
 		}
 		for (Packet p : packetsLinkedList) {
 			newList.offer(p);
