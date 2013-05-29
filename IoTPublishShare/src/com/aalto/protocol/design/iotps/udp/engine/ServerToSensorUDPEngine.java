@@ -24,7 +24,9 @@ public class ServerToSensorUDPEngine {
 		while(true) {
 			dsocket.receive(udpPacket);
 			String receivedMsg = new String(buffer, 0, udpPacket.getLength());
-//	        System.out.println(udpPacket.getAddress().getHostName() + ": "+ receivedMsg);
+			
+			
+//			System.out.println(udpPacket.getAddress().getHostName() + ": "+ receivedMsg);
 	        udpPacket.setLength(buffer.length);
 	        try { 
 	        	

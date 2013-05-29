@@ -1,6 +1,9 @@
 package com.aalto.protocol.design.iotps.udp.engine;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -82,22 +85,20 @@ public class ClientToServerUDPEngine {
 				String logData = dataJSON.GetValue("sensor_data");
 				String deviceId = dataJSON.GetValue("dev_id");
 				if (deviceId.contains("camera")) {
-					String dataFilename = deviceId + ".data";
-					try {
-						BufferedWriter out = new BufferedWriter(new FileWriter(dataFilename, true));
-						out.write(System.currentTimeMillis()+ "\t" + logData+"\n");
-						out.close();
-					} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+					if (!logData.contains("NO_MOTION")) {
+						String dataFilename = deviceId + ".data";
+						try {
+							BufferedWriter out = new BufferedWriter(new FileWriter(dataFilename, true));
+							out.write(logData);
+							out.close();
+						} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
+					}
 					logData = logData.length() + "";
 				}
 				try {
-					
-					if (!logData.contains("NO_MOTION")) {
-						BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-						out.write(logData);
-						out.close();
-					}
-					
+					BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+					out.write(System.currentTimeMillis()+ "\t" +logData);
+					out.close();
 				} catch (Exception e) {System.err.println("Error: " + e.getMessage());}
 				// ------------------------------------------
 
@@ -166,6 +167,8 @@ public class ClientToServerUDPEngine {
 			}
 		}
 	}
+
+	
 
 	// Expected data format [device_2, device_1]
 	private static List<String> findAvailableSensorsFromResult(String receivedMsg) {

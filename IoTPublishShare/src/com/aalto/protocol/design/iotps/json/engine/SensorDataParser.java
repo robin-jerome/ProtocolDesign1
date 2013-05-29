@@ -14,7 +14,15 @@ public class SensorDataParser {
 			int id_index1 = revdMsg.indexOf("'",id_index0);
 			if(id_index1!=-1)
 				return(revdMsg.substring(id_index0, id_index1));
+		} else {
+			revdMsg = revdMsg.replace("\"", "");
+			id_index0+=fieldName.length();
+			int id_index1 = revdMsg.replace("\"","").indexOf("'",id_index0);
+			if(id_index1!=-1)
+				return(revdMsg.substring(id_index0, id_index1));
 		}
+		
+		System.out.println("Corner Case:::::::"+fieldName+" "+revdMsg);
 		return ""+-1; //if fieldName was not found or its data field does not end with ' 
 	}
 
